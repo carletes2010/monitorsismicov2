@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>
+      SASNO · Mapa-Pop
+    </title>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.js">
+    </script>
+    <script src="https://js.pusher.com/8.2/pusher.min.js">
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet" />
+    <style>
+      *{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;background:#000;color:#fff}
+#map{position:fixed;inset:0}
+
+/* ===== Estilo Cristal (UI) ===== */
+:root{
+  --glass-bg: rgba(255,255,255,.1);
+  --glass-br: rgba(255,255,255,.2);
+}
+.btn, .sim, #hud, #sema, #log, #simMenu, #overlay .panel, #configPanel, #errPanel, #popupCard{
+  background:var(--glass-bg);
+  border:1px solid var(--glass-br);
+  backdrop-filter:blur(10px);
+  padding:24px 28px;
+  border-radius:18px;
+  text-align:center;
+}
+
+/* Barra izquierda */
+#leftRail{position:fixed;top:16px;left:16px;z-index:10;display:flex;flex-direction:column;gap:12px;max-width:420px}
+#ctrl{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+#alertWrap{position:relative;display:flex;gap:10px;align-items:flex-start}
+
+/* Botones */
+.btn{color:#fff;cursor:pointer;display:flex;gap:8px;align-items:center;justify-content:center;font-weight:700;white-space:nowrap}
+.btn:hover{filter:brightness(1.12)}
+#alertBtn svg{width:20px;height:20px}
+
+/* Menús */
+#simMenu{position:absolute;top:64px;left:0;min-width:240px;display:none;flex-direction:column;gap:10px;z-index:20}
+.sim{color:#fff;cursor:pointer;font-weight:700;width:100%}
+.sim:hover{filter:brightness(1.12)}
+
+#configPanel{
+  position:absolute; top:64px; left:0;
+  min-width:340px; max-width:420px;
+  display:none; flex-direction:column; gap:14px;
+  z-index:21; text-align:left;
+}
+.cfgTitle{font-weight:900;letter-spacing:.2px}
+.cfgRow{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.cfgRow label{font-weight:800}
+.cfgRow small{opacity:.85;font-weight:600}
+.cfgRow input[type=&#34;checkbox&#34;]{transform:scale(1.2)}
+.cfgDivider{height:1px;background:rgba(255,255,255,.18);margin:4px 0}
+.cfgBtnRow{display:flex;gap:10px;justify-content:flex-end}
+.cfgBtnRow .btn{padding:10px 14px}
+.cfgBlock{display:flex;flex-direction:column;gap:8px}
+.cfgBlock select,.cfgBlock input[type=&#34;file&#34;]{
+  width:100%; padding:10px 12px; border-radius:12px;
+  border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.25); color:#fff; outline:none;
+}
+
+/* Bitácora */
+#log{max-height:44vh;overflow:auto;color:#fff;text-align:left}
+#log h3{margin:0 0 8px;font-size:16px}
+.entry{display:grid;grid-template-columns:auto 1fr;gap:8px;padding:10px;border-radius:14px;background:rgba(255,255,255,.06);margin-bottom:8px}
+.dot{width:14px;height:14px;border-radius:50%;margin-top:3px}
+.meta{font-size:12px;line-height:1.25}
+
+/* HUD y Semáforo */
+#hud{position:fixed;left:14px;bottom:60px;z-index:9;width:300px;text-align:left}
+#hud h1{margin:0 0 8px;font-size:22px}
+#sema{position:fixed;right:14px;bottom:60px;z-index:9;width:360px}
+#foco{width:40px;height:40px;margin:0 auto 10px;border-radius:50%;background:#999;box-shadow:0 0 14px rgba(0,0,0,.5) inset}
+.barWrap{position:relative; padding-bottom:26px}
+.bar{display:flex;height:28px;border-radius:10px;overflow:hidden;font-size:11px;font-weight:900}
+.bar div{flex:1;display:flex;align-items:center;justify-content:center}
+.leve{background:#00c853} .mod{background:#ffc400} .fue{background:#ff3b4a} .viol{background:#7a001f} .ext{background:#6a00ff}
+#flecha{
+  position:absolute; left:0; bottom:0; transform:translateX(-50%);
+  font-size:18px; text-shadow:0 1px 3px #000; transition:left .18s ease;
+}
+
+/* Logo */
+#logoPop{position:fixed;top:50px;right:60px;z-index:9;width:280px;height:auto;user-select:none}
+
+/* Overlay */
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000}
+
+/* Error */
+#errPanel{position:fixed;left:16px;right:16px;top:16px;z-index:2000;display:none;text-align:left;padding:16px 18px}
+#errPanel code{white-space:pre-wrap}
+
+/* Popup */
+#popupOverlay{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:1500; background:rgba(0,0,0,.35)}
+#popupCard{width:min(720px, 92vw);border-radius:26px;padding:26px 30px;position:relative}
+#popupClose{
+  position:absolute; left:18px; top:14px; width:42px; height:42px;
+  border-radius:14px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.22);
+  color:#fff; font-weight:900; font-size:20px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+#popupIcon{width:110px;height:110px;margin:2px auto 8px}
+#popupTitle{font-size:52px;line-height:1.05;margin:6px 0;font-weight:900}
+#popupSub{font-size:34px;line-height:1.15;margin:0 0 16px;font-weight:900}
+#popupMid{font-size:26px;margin:10px 0;font-weight:900}
+#popupTimes{font-size:28px;font-weight:900}
+#popupFooter{margin-top:18px;font-size:34px;font-weight:900}
+@media (max-width:560px){
+  #popupTitle{font-size:38px} #popupSub{font-size:24px} #popupIcon{width:84px;height:84px}
+}
+
+/* ===== ANIMACIÓN TRÉBOL ===== */
+@keyframes trebolSpin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.3); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+.trebol-marker-wrap { width:0;height:0;display:flex;align-items:center;justify-content:center;z-index:500; }
+.trebol-img { width:40px;height:40px;display:none;pointer-events:none;filter: invert(1) drop-shadow(0 0 4px rgba(255,59,74,0.9)); }
+.trebol-img.active { display:block; animation: trebolSpin 2s linear infinite; }
+    </style>
+  </head>
+  <body>
+    <div id="map">
+    </div>
+    <div id="errPanel">
+      <b>      Error
+</b>
+      <code id="errText">      --
+</code>
+    </div>
+    <img id="logoPop" src="https://carletes2010.github.io/monitorsismicov2/assets/poplogosasno.png" alt="SASNO" onerror="this.style.display=&#39;none&#39;" />
+    <div id="leftRail">
+      <div id="ctrl">
+        <div id="alertWrap">
+          <button id="alertBtn" class="btn">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2a6 6 0 0 0-6 6v2.278c0 .52-.214 1.018-.593 1.375L3.7 13.26A1 1 0 0 0 4.4 15h15.2a1 1 0 0 0 .7-1.74l-1.707-1.607a 1.98 1.98 0 0 1-.593-1.375V8a6 6 0 0 0-6-6Zm0 20a3 3 0 0 0 3-3H9a3 3 0 0 0 3 3Z">
+              </path>
+            </svg>
+            <span>            Alerta
+</span>
+          </button>
+          <button id="cfgBtn" class="btn">
+            <span>            ⚙️
+</span>
+            <span>            Config
+</span>
+          </button>
+          <div id="simMenu" role="menu">
+            <button class="sim" id="simLEV">
+              Simular Leve
+            </button>
+            <button class="sim" id="simMOD">
+              Simular Moderado
+            </button>
+            <button class="sim" id="simFUE">
+              Simular Fuerte
+            </button>
+            <button class="sim" id="simVIO">
+              Simular Violento
+            </button>
+            <button class="sim" id="simEXT">
+              Simular Extremo
+            </button>
+            <button class="sim" id="simCLR">
+              Limpiar
+            </button>
+          </div>
+          <div id="configPanel" role="dialog">
+            <div class="cfgTitle">
+              Configuración
+            </div>
+            <div class="cfgDivider">
+            </div>
+            <div class="cfgRow">
+              <div>
+                <label>
+                  Mostrar centrales
+                </label>
+                <br />
+                <small>                Azul fijo (con animación)
+</small>
+              </div>
+              <input id="toggleCentrales" type="checkbox" />
+            </div>
+            <div class="cfgRow">
+              <div>
+                <label>
+                  Mostrar bitácora
+                </label>
+                <br />
+                <small>                Panel de eventos
+</small>
+              </div>
+              <input id="toggleLog" type="checkbox" />
+            </div>
+            <div class="cfgRow">
+              <div>
+                <label>
+                  Pop up (alerta)
+                </label>
+                <br />
+                <small>                Solo FUE/VIOL/EXT, aparece en 15s
+</small>
+              </div>
+              <input id="togglePopup" type="checkbox" />
+            </div>
+            <div class="cfgDivider">
+            </div>
+            <div class="cfgBlock">
+              <label style="font-weight:800">
+                Sonido Alerta
+              </label>
+              <select id="strongSoundSelect">
+                <option value="https://carletes2010.github.io/monitorsismicov2/assets/alertaudio.mp3">
+                  Predeterminado
+                </option>
+                <option value="https://carletes2010.github.io/monitorsismicov2/assets/advisory.mp3">
+                  Alterno
+                </option>
+              </select>
+              <input id="strongSoundFile" type="file" accept="audio/*" />
+            </div>
+            <div class="cfgDivider">
+            </div>
+            <div class="cfgBtnRow">
+              <button id="cfgClose" class="btn">
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="log">
+        <h3>
+          Bitácora
+        </h3>
+        <div id="logList">
+        </div>
+      </div>
+    </div>
+    <div id="hud">
+      <h1 id="tit">
+        Monitoreando
+      </h1>
+      <p id="dist">
+        Distancia: -- km
+      </p>
+      <p id="eta">
+        ETA: -- seg
+      </p>
+    </div>
+    <div id="sema">
+      <div id="foco">
+      </div>
+      <div class="barWrap">
+        <div class="bar" id="sevBar">
+          <div class="leve">
+            LEVE
+          </div>
+          <div class="mod">
+            MOD
+          </div>
+          <div class="fue">
+            FUE
+          </div>
+          <div class="viol">
+            VIOL
+          </div>
+          <div class="ext">
+            EXT
+          </div>
+        </div>
+        <div id="flecha">
+          ▲
+        </div>
+      </div>
+    </div>
+    <div id="overlay">
+      <div class="panel">
+        <h2>
+          Sistema SASNO
+        </h2>
+        <p>
+          Activar audio y notificaciones
+        </p>
+        <button id="activateBtn" class="btn">
+          Activar
+        </button>
+      </div>
+    </div>
+    <div id="popupOverlay" aria-hidden="true">
+      <div id="popupCard">
+        <button id="popupClose">
+          ×
+        </button>
+        <div id="popupIcon">
+          <svg viewBox="0 0 64 64" width="100%" height="100%">
+            <path d="M32 6 L60 54 H4 Z" fill="none" stroke="white" stroke-width="5">
+            </path>
+            <path d="M32 22 v18" stroke="white" stroke-width="6">
+            </path>
+            <circle cx="32" cy="48" r="3.5" fill="white">
+            </circle>
+          </svg>
+        </div>
+        <div id="popupTitle">
+          ALERTA SÍSMICA
+        </div>
+        <div id="popupSub">
+          SISMO EN --
+        </div>
+        <div id="popupMid">
+          ANTICIPACIÓN
+        </div>
+        <div id="popupTimes">
+          <div>
+            ONDA S:
+            <span id="popupS">            --
+</span>
+            S
+          </div>
+          <div>
+            ONDA P:
+            <span id="popupP">            --
+</span>
+            S
+          </div>
+        </div>
+        <div id="popupFooter">
+          <span id="popupDate">          --
+</span>
+          - SASNO
+        </div>
+      </div>
+    </div>
+    <audio id="eqwAudio" src="https://carletes2010.github.io/monitorsismicov2/assets/alertaudio.mp3" preload="auto" playsinline="">
+    </audio>
+    <audio id="advAudio" src="https://carletes2010.github.io/monitorsismicov2/assets/advisory.mp3" preload="auto" playsinline="">
+    </audio>
+    <script>
+      /* Helpers */
+const $=(id)=&gt;document.getElementById(id);
+const showErr=(m)=&gt;{ $(&#39;errPanel&#39;).style.display=&#39;block&#39;; $(&#39;errText&#39;).textContent=String(m||&#39;Error&#39;); };
+window.addEventListener(&#39;error&#39;,(e)=&gt;showErr(e?.message||e));
+
+/* Mapbox */
+mapboxgl.accessToken=&#39;pk.eyJ1IjoiYWx6b2FsZXJ0YXNpc21pY2EiLCJhIjoiY2wyNHM2c25vMjNoejNpcWRrb3Y4MzV6ciJ9.D2pXLxF0emuIHvrW-n181Q&#39;;
+
+/* DOM */
+const tit=$(&#39;tit&#39;), dist=$(&#39;dist&#39;), eta=$(&#39;eta&#39;), foco=$(&#39;foco&#39;), flecha=$(&#39;flecha&#39;);
+const sevBar=$(&#39;sevBar&#39;);
+const logWrap=$(&#39;log&#39;), logList=$(&#39;logList&#39;);
+
+const popupOverlay=$(&#39;popupOverlay&#39;), popupSub=$(&#39;popupSub&#39;), popupS=$(&#39;popupS&#39;), popupP=$(&#39;popupP&#39;), popupDate=$(&#39;popupDate&#39;);
+const eqwAudio=$(&#39;eqwAudio&#39;), advAudio=$(&#39;advAudio&#39;);
+
+/* Config */
+const toggleCentrales=$(&#39;toggleCentrales&#39;);
+const toggleLog=$(&#39;toggleLog&#39;);
+const togglePopup=$(&#39;togglePopup&#39;);
+const strongSoundSelect=$(&#39;strongSoundSelect&#39;);
+const strongSoundFile=$(&#39;strongSoundFile&#39;);
+
+/* Estado */
+const CDMX=[-99.1332, 19.4326];
+const FIXED_ZOOM=5.8;
+const EVENT_MS=120000;
+const POPUP_DELAY_MS=15000;
+
+const WAVE_P = &#39;#ffc400&#39;; // amarilla
+const WAVE_S = &#39;#ff3b4a&#39;; // roja
+
+let map, mapReady=false;
+let lastEvt=null;
+let audioPrimed=false;
+
+let clearTimer=null;
+let popupTimer=null;
+let rafWaves=null;
+let rafPopup=null;
+
+let popupToken=0;
+let popupDismissedToken=0;
+
+/* Centrales */
+const CENTRALES=[
+  {id:&#39;CDMX&#39;,lng:-99.1332,lat:19.4326},
+  {id:&#39;OAX&#39;, lng:-96.7266,lat:17.0732},
+  {id:&#39;ACA&#39;, lng:-99.9120,lat:16.8532},
+  {id:&#39;CHP&#39;, lng:-99.5014,lat:17.5514},
+  {id:&#39;MOR&#39;, lng:-101.1850,lat:19.7053},
+  {id:&#39;PUE&#39;, lng:-98.2063,lat:19.0414},
+  {id:&#39;CUA&#39;, lng:-99.2357,lat:18.9242},
+  {id:&#39;COL&#39;, lng:-103.7241,lat:19.2433},
+  {id:&#39;TOL&#39;, lng:-99.6557,lat:19.2826}
+];
+let trebolImages=[], trebolWraps=[];
+
+/* Severidad */
+const COLORS={leve:&#39;#00c853&#39;, mod:&#39;#ffc400&#39;, fue:&#39;#ff3b4a&#39;, viol:&#39;#7a001f&#39;, ext:&#39;#6a00ff&#39;};
+const LABELS={leve:&#39;Leve&#39;, mod:&#39;Moderado&#39;, fue:&#39;Fuerte&#39;, viol:&#39;Violento&#39;, ext:&#39;Extremo&#39;};
+const ORDER=[&#39;leve&#39;,&#39;mod&#39;,&#39;fue&#39;,&#39;viol&#39;,&#39;ext&#39;];
+const IDX=Object.fromEntries(ORDER.map((k,i)=&gt;[k,i]));
+
+/* Utils */
+const km=(lat1,lon1,lat2,lon2)=&gt;{
+  const R=6371, p=0.017453292519943295;
+  const a=0.5-Math.cos((lat2-lat1)*p)/2 + Math.cos(lat1*p)*Math.cos(lat2*p)*(1-Math.cos((lon2-lon1)*p))/2;
+  return 12742*Math.asin(Math.sqrt(a));
+};
+const fmtTime=()=&gt;new Date().toLocaleTimeString(undefined,{hour12:false});
+const fmtDate=()=&gt;{
+  const d=new Date();
+  const dd=String(d.getDate()).padStart(2,&#39;0&#39;);
+  const mm=[&#39;ENE&#39;,&#39;FEB&#39;,&#39;MAR&#39;,&#39;ABR&#39;,&#39;MAY&#39;,&#39;JUN&#39;,&#39;JUL&#39;,&#39;AGO&#39;,&#39;SEP&#39;,&#39;OCT&#39;,&#39;NOV&#39;,&#39;DIC&#39;][d.getMonth()];
+  const yy=d.getFullYear();
+  const hh=String(d.getHours()).padStart(2,&#39;0&#39;);
+  const mi=String(d.getMinutes()).padStart(2,&#39;0&#39;);
+  const ss=String(d.getSeconds()).padStart(2,&#39;0&#39;);
+  return `${dd} ${mm} ${yy} ${hh}:${mi}:${ss}`;
+};
+function setArrowByTipo(tipo){
+  const idx=(tipo in IDX)?IDX[tipo]:IDX.fue;
+  const rect=sevBar.getBoundingClientRect();
+  const seg=rect.width/ORDER.length;
+  flecha.style.left=`${seg*(idx+0.5)}px`;
+}
+window.addEventListener(&#39;resize&#39;,()=&gt;{ if(lastEvt?.tipo) setArrowByTipo(lastEvt.tipo); });
+
+/* Geometría para ondas: radio en METROS */
+function circMeters([lo,la], rMeters, n=96){
+  const cos=Math.max(0.1,Math.cos(la*Math.PI/180));
+  const dx=rMeters/(111320*cos);
+  const dy=rMeters/110574;
+  const c=[];
+  for(let i=0;i&lt;n;i++){
+    const a=2*Math.PI*i/n;
+    c.push([lo+dx*Math.cos(a), la+dy*Math.sin(a)]);
+  }
+  c.push(c[0]);
+  return {type:&#39;Feature&#39;,geometry:{type:&#39;Polygon&#39;,coordinates:[c]}};
+}
+
+/* Reverse geocode: SOLO ESTADO */
+function normalizeStateName(name){
+  if(!name) return null;
+  let s=String(name).trim();
+  s=s.replace(/^estado de\s+/i,&#39;&#39;).replace(/^province of\s+/i,&#39;&#39;).replace(/^state of\s+/i,&#39;&#39;);
+  if(/^mexico city$/i.test(s)||/^ciudad de mexico$/i.test(s)||/^cdmx$/i.test(s)) s=&#39;Ciudad de México&#39;;
+  return s.toUpperCase();
+}
+async function resolveEpicenterState(lat,lng){
+  try{
+    const url=`https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?types=region&amp;language=es&amp;limit=1&amp;access_token=${mapboxgl.accessToken}`;
+    const r=await fetch(url);
+    const j=await r.json();
+    const f=j?.features?.[0];
+    if(!f) return null;
+    return normalizeStateName(f.text_es||f.text);
+  }catch(e){
+    return null;
+  }
+}
+
+/* Config persistente */
+const LS={centrales:&#39;cfg_show_centrales&#39;,log:&#39;cfg_show_log&#39;,popup:&#39;cfg_show_popup&#39;,sound:&#39;cfg_alert_sound&#39;};
+function loadCfg(){
+  const sc=localStorage.getItem(LS.centrales);
+  toggleCentrales.checked=(sc===null)?true:(sc===&#39;1&#39;);
+  const sl=localStorage.getItem(LS.log);
+  toggleLog.checked=(sl===null)?true:(sl===&#39;1&#39;);
+  const sp=localStorage.getItem(LS.popup);
+  togglePopup.checked=(sp===null)?false:(sp===&#39;1&#39;);
+  const snd=localStorage.getItem(LS.sound);
+  if(snd){ strongSoundSelect.value=snd; eqwAudio.src=snd; }
+  applyLogVisibility();
+  applyCentralesVisibility();
+}
+function saveCfg(){
+  localStorage.setItem(LS.centrales,toggleCentrales.checked?&#39;1&#39;:&#39;0&#39;);
+  localStorage.setItem(LS.log,toggleLog.checked?&#39;1&#39;:&#39;0&#39;);
+  localStorage.setItem(LS.popup,togglePopup.checked?&#39;1&#39;:&#39;0&#39;);
+  localStorage.setItem(LS.sound,strongSoundSelect.value);
+}
+function applyLogVisibility(){ logWrap.style.display=toggleLog.checked?&#39;block&#39;:&#39;none&#39;; }
+
+/* Centrales visibilidad */
+function applyCentralesVisibility(){
+  if(!mapReady) return;
+  const v=toggleCentrales.checked?&#39;visible&#39;:&#39;none&#39;;
+  if(map.getLayer(&#39;centrales-dot&#39;)) map.setLayoutProperty(&#39;centrales-dot&#39;,&#39;visibility&#39;,v);
+  if(map.getLayer(&#39;centrales-text&#39;)) map.setLayoutProperty(&#39;centrales-text&#39;,&#39;visibility&#39;,v);
+  trebolWraps.forEach(w=&gt; w.style.display = toggleCentrales.checked ? &#39;&#39; : &#39;none&#39;);
+  if(!toggleCentrales.checked) toggleTrebolAnimation(false);
+}
+
+/* UI menus */
+function closeMenus(){ $(&#39;simMenu&#39;).style.display=&#39;none&#39;; $(&#39;configPanel&#39;).style.display=&#39;none&#39;; }
+document.addEventListener(&#39;click&#39;,(e)=&gt;{ if(!$(&#39;alertWrap&#39;).contains(e.target)) closeMenus(); });
+
+/* Audio prime */
+$(&#39;activateBtn&#39;).onclick=()=&gt;{
+  $(&#39;overlay&#39;).style.display=&#39;none&#39;;
+  if(!audioPrimed){
+    [eqwAudio,advAudio].forEach(a=&gt;{
+      const v=a.volume; a.volume=0.0001;
+      a.play().then(()=&gt;{ a.pause(); a.currentTime=0; a.volume=v; }).catch(()=&gt;{});
+    });
+    audioPrimed=true;
+  }
+};
+
+/* Popup */
+$(&#39;popupClose&#39;).onclick=()=&gt;{ popupDismissedToken=popupToken; hidePopup(); };
+popupOverlay.addEventListener(&#39;click&#39;,(e)=&gt;{ if(e.target===popupOverlay){ popupDismissedToken=popupToken; hidePopup(); }});
+function showPopup(){ popupOverlay.style.display=&#39;flex&#39;; popupOverlay.setAttribute(&#39;aria-hidden&#39;,&#39;false&#39;); }
+function hidePopup(){
+  popupOverlay.style.display=&#39;none&#39;;
+  popupOverlay.setAttribute(&#39;aria-hidden&#39;,&#39;true&#39;);
+  if(rafPopup) cancelAnimationFrame(rafPopup);
+  rafPopup=null;
+}
+
+/* Map init fijo */
+function initMap(){
+  try{
+    map=new mapboxgl.Map({
+      container:&#39;map&#39;,
+      style:&#39;mapbox://styles/mapbox/outdoors-v12&#39;,
+      center:CDMX,
+      zoom:FIXED_ZOOM,
+      minZoom:FIXED_ZOOM,
+      maxZoom:FIXED_ZOOM,
+      interactive:false
+    });
+
+    map.scrollZoom.disable();map.boxZoom.disable();map.dragRotate.disable();map.dragPan.disable();
+    map.keyboard.disable();map.doubleClickZoom.disable();map.touchZoomRotate.disable();map.touchPitch.disable();
+    map.on(&#39;error&#39;,(e)=&gt;showErr((e?.error?.message)||JSON.stringify(e?.error||e)));
+
+    map.on(&#39;load&#39;, ()=&gt;{
+      mapReady=true;
+      addWavesScaffold();     // ✅ ondas listas
+      addCentrales();         // puntos azules
+      createTrebolMarkers();  // tréboles ocultos
+      loadCfg();
+      setArrowByTipo(&#39;fue&#39;);
+    });
+  }catch(err){ showErr(err?.message||err); }
+}
+
+/* Ondas: scaffold */
+function addWavesScaffold(){
+  const tiny=circMeters(CDMX,1);
+
+  if(!map.getSource(&#39;ondaP&#39;)) map.addSource(&#39;ondaP&#39;,{type:&#39;geojson&#39;,data:tiny});
+  if(!map.getSource(&#39;ondaS&#39;)) map.addSource(&#39;ondaS&#39;,{type:&#39;geojson&#39;,data:tiny});
+
+  if(!map.getLayer(&#39;ondaP-fill&#39;)){
+    map.addLayer({id:&#39;ondaP-fill&#39;,type:&#39;fill&#39;,source:&#39;ondaP&#39;,
+      paint:{&#39;fill-color&#39;:&#39;transparent&#39;,&#39;fill-outline-color&#39;:WAVE_P}});
+  }
+  if(!map.getLayer(&#39;ondaP-line&#39;)){
+    map.addLayer({id:&#39;ondaP-line&#39;,type:&#39;line&#39;,source:&#39;ondaP&#39;,
+      paint:{&#39;line-color&#39;:WAVE_P,&#39;line-width&#39;:2,&#39;line-opacity&#39;:1},
+      layout:{&#39;line-join&#39;:&#39;round&#39;,&#39;line-cap&#39;:&#39;round&#39;}});
+  }
+
+  if(!map.getLayer(&#39;ondaS-fill&#39;)){
+    map.addLayer({id:&#39;ondaS-fill&#39;,type:&#39;fill&#39;,source:&#39;ondaS&#39;,
+      paint:{&#39;fill-color&#39;:&#39;transparent&#39;,&#39;fill-outline-color&#39;:WAVE_S}});
+  }
+  if(!map.getLayer(&#39;ondaS-line&#39;)){
+    map.addLayer({id:&#39;ondaS-line&#39;,type:&#39;line&#39;,source:&#39;ondaS&#39;,
+      paint:{&#39;line-color&#39;:WAVE_S,&#39;line-width&#39;:2,&#39;line-opacity&#39;:1},
+      layout:{&#39;line-join&#39;:&#39;round&#39;,&#39;line-cap&#39;:&#39;round&#39;}});
+  }
+}
+function resetWaves(){
+  const tiny=circMeters(CDMX,1);
+  map.getSource(&#39;ondaP&#39;)?.setData(tiny);
+  map.getSource(&#39;ondaS&#39;)?.setData(tiny);
+}
+
+/* Centrales */
+function addCentrales(){
+  const features=CENTRALES.map(c=&gt;({type:&#39;Feature&#39;,geometry:{type:&#39;Point&#39;,coordinates:[c.lng,c.lat]},properties:{id:c.id}}));
+  if(!map.getSource(&#39;centrales&#39;)) map.addSource(&#39;centrales&#39;,{type:&#39;geojson&#39;,data:{type:&#39;FeatureCollection&#39;,features}});
+
+  if(!map.getLayer(&#39;centrales-dot&#39;)){
+    map.addLayer({
+      id:&#39;centrales-dot&#39;,type:&#39;circle&#39;,source:&#39;centrales&#39;,
+      paint:{
+        &#39;circle-radius&#39;:11,
+        &#39;circle-color&#39;:&#39;#0b1b3a&#39;,
+        &#39;circle-stroke-width&#39;:3,
+        &#39;circle-stroke-color&#39;:&#39;#122a57&#39;
+      }
+    });
+  }
+  if(!map.getLayer(&#39;centrales-text&#39;)){
+    map.addLayer({
+      id:&#39;centrales-text&#39;,type:&#39;symbol&#39;,source:&#39;centrales&#39;,
+      layout:{&#39;text-field&#39;:[&#39;get&#39;,&#39;id&#39;],&#39;text-size&#39;:12,&#39;text-offset&#39;:[0,1.4],&#39;text-anchor&#39;:&#39;top&#39;},
+      paint:{&#39;text-color&#39;:&#39;#fff&#39;}
+    });
+  }
+}
+
+/* Trébol markers */
+function createTrebolMarkers(){
+  if(trebolImages.length) return;
+
+  CENTRALES.forEach(c=&gt;{
+    const wrap=document.createElement(&#39;div&#39;);
+    wrap.className=&#39;trebol-marker-wrap&#39;;
+
+    const img=document.createElement(&#39;img&#39;);
+    img.className=&#39;trebol-img&#39;;
+    img.src=&#39;https://carletes2010.github.io/monitorsismicov2/assets/trebol.png&#39;;
+    img.alt=&#39;alert&#39;;
+
+    wrap.appendChild(img);
+    trebolWraps.push(wrap);
+    trebolImages.push(img);
+
+    new mapboxgl.Marker({element:wrap,anchor:&#39;center&#39;}).setLngLat([c.lng,c.lat]).addTo(map);
+  });
+
+  applyCentralesVisibility();
+}
+function toggleTrebolAnimation(active){
+  const canShow = active &amp;&amp; toggleCentrales.checked;
+  trebolImages.forEach(img=&gt;{
+    if(canShow) img.classList.add(&#39;active&#39;);
+    else img.classList.remove(&#39;active&#39;);
+  });
+}
+
+/* Bitácora */
+function pushLog(tipo,color,text){
+  if(!toggleLog.checked) return;
+  const li=document.createElement(&#39;div&#39;);
+  li.className=&#39;entry&#39;;
+  li.innerHTML=`&lt;div class=&#34;dot&#34; style=&#34;background:${color}&#34;&gt;&lt;/div&gt;
+                &lt;div class=&#34;meta&#34;&gt;&lt;b&gt;${String(tipo).toUpperCase()}&lt;/b&gt; · ${fmtTime()}&lt;br/&gt;${text}&lt;/div&gt;`;
+  logList.prepend(li);
+  if(logList.children.length&gt;200) logList.removeChild(logList.lastElementChild);
+}
+
+/* Animación ondas + countdown HUD */
+function startWavesAndCountdown(epicLngLat, etaS0, etaP0){
+  if(rafWaves) cancelAnimationFrame(rafWaves);
+  const t0=performance.now();
+
+  const step=(now)=&gt;{
+    const s=(now-t0)/1000;
+
+    // Ondas: radio en metros (ajusta si quieres)
+    // P viaja más rápido, así que crece más rápido
+    const rP = Math.max(1, 8000*s); // m
+    const rS = Math.max(1, 5000*s); // m
+
+    map.getSource(&#39;ondaP&#39;)?.setData(circMeters(epicLngLat, rP));
+    map.getSource(&#39;ondaS&#39;)?.setData(circMeters(epicLngLat, rS));
+
+    // Countdown (onda S)
+    const remainS=Math.max(0, Math.round(etaS0 - s));
+    eta.textContent = `ETA: ${remainS} s`;
+
+    // seguir mientras haya evento activo
+    if(lastEvt &amp;&amp; s &lt; (EVENT_MS/1000)) rafWaves=requestAnimationFrame(step);
+  };
+
+  rafWaves=requestAnimationFrame(step);
+}
+
+/* Evento */
+async function drawEvent(evt){
+  if(!mapReady) return;
+
+  clearEvent();
+  lastEvt = evt;
+
+  const {latitud, longitud} = evt;
+  let tipo = evt.tipo || &#39;fue&#39;;
+  if(!(tipo in COLORS)) tipo=&#39;fue&#39;;
+
+  const color=COLORS[tipo];
+  foco.style.background=color;
+  tit.textContent=`Sismo ${LABELS[tipo]}`;
+  setArrowByTipo(tipo);
+
+  const d=km(latitud,longitud,CDMX[1],CDMX[0]);
+  dist.textContent=`Distancia: ${d.toFixed(0)} km`;
+
+  const etaS0 = d/5.0; // S
+  const etaP0 = d/8.0; // P
+  eta.textContent=`ETA: ${Math.max(0,Math.round(etaS0))} s`;
+
+  const state = await resolveEpicenterState(latitud,longitud);
+  pushLog(tipo,color, state ? `Sismo en ${state}` : `Lat:${latitud} Lon:${longitud}`);
+
+  // ✅ Ondas y countdown SIEMPRE que haya evento
+  const epic=[longitud,latitud];
+  addWavesScaffold();
+  startWavesAndCountdown(epic, etaS0, etaP0);
+
+  // Alerta: solo fue/viol/ext
+  const isAlert=[&#39;fue&#39;,&#39;viol&#39;,&#39;ext&#39;].includes(tipo);
+
+  if(isAlert){
+    toggleTrebolAnimation(true);
+    if(audioPrimed){ eqwAudio.currentTime=0; eqwAudio.play().catch(()=&gt;{}); }
+  }else{
+    toggleTrebolAnimation(false);
+    if(audioPrimed){ advAudio.currentTime=0; advAudio.play().catch(()=&gt;{}); }
+  }
+
+  // Popup (solo alerta) delay 15s, muestra SOLO estado
+  popupToken=Date.now();
+  popupDismissedToken=0;
+
+  if(isAlert &amp;&amp; togglePopup.checked){
+    popupTimer=setTimeout(()=&gt;{
+      if(!lastEvt) return;
+      if(popupDismissedToken===popupToken) return;
+
+      popupSub.textContent = `SISMO EN ${state || &#39;--&#39;}`;
+      popupDate.textContent = fmtDate();
+
+      const delaySec=POPUP_DELAY_MS/1000;
+
+      // inicio popup con tiempo ya transcurrido
+      popupS.textContent = String(Math.max(0, Math.round(etaS0 - delaySec)));
+      popupP.textContent = String(Math.max(0, Math.round(etaP0 - delaySec)));
+
+      showPopup();
+
+      const popupStart=performance.now();
+      const tick=(now)=&gt;{
+        if(popupDismissedToken===popupToken) return;
+        const elapsed=(now-popupStart)/1000 + delaySec;
+        popupS.textContent = String(Math.max(0, Math.round(etaS0 - elapsed)));
+        popupP.textContent = String(Math.max(0, Math.round(etaP0 - elapsed)));
+        popupDate.textContent = fmtDate();
+        if(lastEvt &amp;&amp; elapsed &lt; (EVENT_MS/1000)) rafPopup=requestAnimationFrame(tick);
+      };
+      rafPopup=requestAnimationFrame(tick);
+
+    }, POPUP_DELAY_MS);
+  }
+
+  clearTimer=setTimeout(clearEvent, EVENT_MS);
+}
+
+function clearEvent(){
+  if(clearTimer){ clearTimeout(clearTimer); clearTimer=null; }
+  if(popupTimer){ clearTimeout(popupTimer); popupTimer=null; }
+  if(rafWaves){ cancelAnimationFrame(rafWaves); rafWaves=null; }
+  if(rafPopup){ cancelAnimationFrame(rafPopup); rafPopup=null; }
+
+  if(mapReady) resetWaves();
+
+  toggleTrebolAnimation(false);
+  foco.style.background=&#39;#999&#39;;
+  tit.textContent=&#39;Monitoreando&#39;;
+  dist.textContent=&#39;Distancia: -- km&#39;;
+  eta.textContent=&#39;ETA: -- seg&#39;;
+
+  hidePopup();
+
+  eqwAudio.pause(); eqwAudio.currentTime=0;
+  advAudio.pause(); advAudio.currentTime=0;
+
+  lastEvt=null;
+}
+
+/* UI */
+$(&#39;alertBtn&#39;).onclick=()=&gt;{
+  const m=$(&#39;simMenu&#39;);
+  const open=(m.style.display===&#39;flex&#39;);
+  closeMenus();
+  m.style.display=open?&#39;none&#39;:&#39;flex&#39;;
+};
+$(&#39;cfgBtn&#39;).onclick=()=&gt;{
+  const p=$(&#39;configPanel&#39;);
+  const open=(p.style.display===&#39;flex&#39;);
+  closeMenus();
+  p.style.display=open?&#39;none&#39;:&#39;flex&#39;;
+};
+$(&#39;cfgClose&#39;).onclick=()=&gt;{ $(&#39;configPanel&#39;).style.display=&#39;none&#39;; };
+
+toggleCentrales.addEventListener(&#39;change&#39;,()=&gt;{ saveCfg(); applyCentralesVisibility(); });
+toggleLog.addEventListener(&#39;change&#39;,()=&gt;{ saveCfg(); applyLogVisibility(); });
+togglePopup.addEventListener(&#39;change&#39;,()=&gt;{ saveCfg(); if(!togglePopup.checked) hidePopup(); });
+
+strongSoundSelect.addEventListener(&#39;change&#39;,()=&gt;{
+  eqwAudio.src=strongSoundSelect.value;
+  saveCfg();
+});
+strongSoundFile.addEventListener(&#39;change&#39;,()=&gt;{
+  const f=strongSoundFile.files &amp;&amp; strongSoundFile.files[0];
+  if(!f) return;
+  eqwAudio.src=URL.createObjectURL(f);
+});
+
+/* Simulacros */
+$(&#39;simLEV&#39;).onclick=()=&gt;drawEvent({latitud:19.0,longitud:-99.4,tipo:&#39;leve&#39;});
+$(&#39;simMOD&#39;).onclick=()=&gt;drawEvent({latitud:18.2,longitud:-100.2,tipo:&#39;mod&#39;});
+$(&#39;simFUE&#39;).onclick=()=&gt;drawEvent({latitud:19.0414,longitud:-98.2063,tipo:&#39;fue&#39;});   // Puebla
+$(&#39;simVIO&#39;).onclick=()=&gt;drawEvent({latitud:16.8532,longitud:-99.9120,tipo:&#39;viol&#39;});  // Acapulco
+$(&#39;simEXT&#39;).onclick=()=&gt;drawEvent({latitud:17.0732,longitud:-96.7266,tipo:&#39;ext&#39;});   // Oaxaca
+$(&#39;simCLR&#39;).onclick=()=&gt;clearEvent();
+
+/* Pusher */
+const pusher=new Pusher(&#39;0f74c31648d3adb34e1b&#39;,{cluster:&#39;us2&#39;,forceTLS:true});
+pusher.subscribe(&#39;alertas-sasno&#39;).bind(&#39;mapa_pop&#39;, d=&gt;{
+  if(d &amp;&amp; typeof d.latitud===&#39;number&#39; &amp;&amp; typeof d.longitud===&#39;number&#39;){
+    drawEvent(d);
+  }else{
+    clearEvent();
+  }
+});
+
+/* Inicio */
+initMap();
+    </script>
+  </body>
+</html>
