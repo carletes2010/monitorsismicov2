@@ -15,21 +15,9 @@
 html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;background:#000;color:#fff}
 #map{position:fixed;inset:0}
 
-/* ===== Estilo ÚNICO solicitado (cristal) ===== */
-:root{
-  --glass-bg: rgba(255,255,255,.1);
-  --glass-br: rgba(255,255,255,.2);
-}
-.btn,
-.sim,
-#hud,
-#sema,
-#log,
-#simMenu,
-#overlay .panel,
-#configPanel,
-#errPanel,
-#popupCard{
+/* ===== Cristal ===== */
+:root{ --glass-bg: rgba(255,255,255,.1); --glass-br: rgba(255,255,255,.2); }
+.btn,.sim,#hud,#sema,#log,#simMenu,#overlay .panel,#configPanel,#errPanel,#popupCard{
   background:var(--glass-bg);
   border:1px solid var(--glass-br);
   backdrop-filter:blur(10px);
@@ -44,31 +32,14 @@ html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;ba
 #alertWrap{position:relative;display:flex;gap:10px;align-items:flex-start}
 
 /* Botones */
-.btn{
-  color:#fff;
-  cursor:pointer;
-  display:flex;
-  gap:8px;
-  align-items:center;
-  justify-content:center;
-  font-weight:700;
-  white-space:nowrap;
-}
+.btn{color:#fff;cursor:pointer;display:flex;gap:8px;align-items:center;justify-content:center;font-weight:700;white-space:nowrap}
 .btn:hover{filter:brightness(1.12)}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 #alertBtn svg{width:20px;height:20px}
 
 /* Menú simulacros */
-#simMenu{
-  position:absolute;top:64px;left:0;min-width:240px;
-  display:none;flex-direction:column;gap:10px;z-index:20;
-}
-.sim{
-  color:#fff;
-  cursor:pointer;
-  font-weight:700;
-  width:100%;
-}
+#simMenu{position:absolute;top:64px;left:0;min-width:240px;display:none;flex-direction:column;gap:10px;z-index:20}
+.sim{color:#fff;cursor:pointer;font-weight:700;width:100%}
 .sim:hover{filter:brightness(1.12)}
 
 /* Panel configuración */
@@ -76,8 +47,7 @@ html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;ba
   position:absolute; top:64px; left:0;
   min-width:340px; max-width:420px;
   display:none; flex-direction:column; gap:14px;
-  z-index:21;
-  text-align:left;
+  z-index:21; text-align:left;
 }
 .cfgRow{display:flex;gap:10px;align-items:center;justify-content:space-between}
 .cfgRow label{font-weight:800}
@@ -85,13 +55,8 @@ html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;ba
 .cfgRow input[type="checkbox"]{transform:scale(1.2)}
 .cfgBlock{display:flex;flex-direction:column;gap:8px}
 .cfgBlock select,.cfgBlock input[type="file"]{
-  width:100%;
-  padding:10px 12px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.22);
-  background:rgba(0,0,0,.25);
-  color:#fff;
-  outline:none;
+  width:100%;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.22);
+  background:rgba(0,0,0,.25);color:#fff;outline:none;
 }
 .cfgHelp{font-size:12px;opacity:.9;line-height:1.25}
 .cfgDivider{height:1px;background:rgba(255,255,255,.18);margin:4px 0}
@@ -102,11 +67,7 @@ html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;ba
 /* Bitácora */
 #log{max-height:44vh;overflow:auto;color:#fff;text-align:left}
 #log h3{margin:0 0 8px;font-size:16px;color:#fff;text-align:left}
-.entry{
-  display:grid;grid-template-columns:auto 1fr;gap:8px;
-  padding:10px;border-radius:14px;background:rgba(255,255,255,.06);
-  margin-bottom:8px;color:#fff;text-align:left;
-}
+.entry{display:grid;grid-template-columns:auto 1fr;gap:8px;padding:10px;border-radius:14px;background:rgba(255,255,255,.06);margin-bottom:8px;color:#fff;text-align:left}
 .dot{width:14px;height:14px;border-radius:50%;margin-top:3px;box-shadow:0 0 0 2px rgba(0,0,0,.3) inset}
 .meta{font-size:12px;line-height:1.25;color:#fff}
 .meta b{color:#fff}
@@ -118,7 +79,7 @@ html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;ba
 
 #sema{position:fixed;right:14px;bottom:60px;z-index:9;width:360px;color:#fff}
 #foco{width:40px;height:40px;margin:0 auto 10px;border-radius:50%;background:#999;box-shadow:0 0 14px rgba(0,0,0,.5) inset,0 0 8px rgba(0,0,0,.35)}
-.barWrap{position:relative; padding-bottom:26px;}
+.barWrap{position:relative;padding-bottom:26px}
 .bar{display:flex;height:28px;border-radius:10px;overflow:hidden;font-size:11px;font-weight:900}
 .bar div{flex:1;display:flex;align-items:center;justify-content:center;color:#fff}
 .leve{background:#00c853}
@@ -126,17 +87,7 @@ html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;ba
 .fue{background:#ff3b4a}
 .viol{background:#7a001f}
 .ext{background:#6a00ff}
-#flecha{
-  position:absolute;
-  left:0;
-  bottom:0;
-  transform:translateX(-50%);
-  font-size:18px;
-  text-shadow:0 1px 3px #000;
-  color:#fff;
-  user-select:none;
-  transition:left .18s ease;
-}
+#flecha{position:absolute;left:0;bottom:0;transform:translateX(-50%);font-size:18px;text-shadow:0 1px 3px #000;color:#fff;user-select:none;transition:left .18s ease}
 
 /* Logo */
 #logoPop{position:fixed;top:50px;right:60px;z-index:9;width:280px;height:auto;user-select:none}
@@ -149,75 +100,26 @@ html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;ba
 #overlay button{border:none;color:#000;background:#00c853;font-weight:900}
 #overlay button:active{transform:scale(.98)}
 
-/* Panel de error */
-#errPanel{
-  position:fixed;left:16px;right:16px;top:16px;z-index:2000;
-  display:none;text-align:left;padding:16px 18px;
-}
+/* Error */
+#errPanel{position:fixed;left:16px;right:16px;top:16px;z-index:2000;display:none;text-align:left;padding:16px 18px}
 #errPanel b{display:block;margin-bottom:6px}
-#errPanel code{
-  display:block;white-space:pre-wrap;
-  font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-size:12px;opacity:.95;
-}
+#errPanel code{display:block;white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;font-size:12px;opacity:.95}
 
-/* ===== POPUP ALERTA (cristal) ===== */
-#popupOverlay{
-  position:fixed; inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:1500;
-  background:rgba(0,0,0,.35);
-}
-#popupCard{
-  width:min(720px, 92vw);
-  border-radius:26px;
-  padding:26px 30px;
-  text-align:center;
-  position:relative;
-}
+/* ===== POPUP ===== */
+#popupOverlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:1500;background:rgba(0,0,0,.35)}
+#popupCard{width:min(720px,92vw);border-radius:26px;padding:26px 30px;text-align:center;position:relative}
 #popupClose{
-  position:absolute;
-  left:18px;
-  top:14px;
-  width:42px;
-  height:42px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,.22);
-  background:rgba(255,255,255,.08);
-  color:#fff;
-  cursor:pointer;
-  font-weight:900;
-  font-size:20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-#popupClose:hover{filter:brightness(1.15)}
-#popupIcon{
-  width:110px;height:110px;
-  margin:2px auto 8px;
+  position:absolute;left:18px;top:14px;width:42px;height:42px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-weight:900;font-size:20px;
   display:flex;align-items:center;justify-content:center;
 }
-#popupTitle{
-  font-size:52px; line-height:1.05; letter-spacing:.5px;
-  margin:6px 0 6px; font-weight:900;
-}
-#popupSub{
-  font-size:34px; line-height:1.15;
-  margin:0 0 16px; font-weight:900;
-}
-#popupMid{
-  font-size:26px; font-weight:900;
-  margin:10px 0 10px; letter-spacing:.4px;
-}
-#popupTimes{
-  font-size:28px; font-weight:900; line-height:1.25;
-}
-#popupFooter{
-  margin-top:18px; font-size:34px; font-weight:900; letter-spacing:.4px;
-}
+#popupClose:hover{filter:brightness(1.15)}
+#popupIcon{width:110px;height:110px;margin:2px auto 8px;display:flex;align-items:center;justify-content:center}
+#popupTitle{font-size:52px;line-height:1.05;letter-spacing:.5px;margin:6px 0 6px;font-weight:900}
+#popupSub{font-size:34px;line-height:1.15;margin:0 0 16px;font-weight:900}
+#popupMid{font-size:26px;font-weight:900;margin:10px 0 10px;letter-spacing:.4px}
+#popupTimes{font-size:28px;font-weight:900;line-height:1.25}
+#popupFooter{margin-top:18px;font-size:34px;font-weight:900;letter-spacing:.4px}
 @media (max-width:560px){
   #popupTitle{font-size:38px}
   #popupSub{font-size:24px}
@@ -225,6 +127,43 @@ html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;ba
   #popupTimes{font-size:20px}
   #popupFooter{font-size:22px}
   #popupIcon{width:84px;height:84px}
+}
+
+/* ===== CENTRALES (HTML MARKERS) + TRÉBOL ===== */
+.centralMarker{position:relative;width:26px;height:26px}
+.centralDot{
+  position:absolute;left:50%;top:50%;
+  width:12px;height:12px;border-radius:50%;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 0 2px rgba(0,0,0,.35);
+}
+.centralClover{
+  position:absolute;left:50%;top:50%;
+  width:56px;height:56px;
+  transform:translate(-50%,-50%);
+  opacity:0;
+  pointer-events:none;
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
+}
+@keyframes cloverAlarm{
+  0%{ transform:translate(-50%,-50%) rotate(0deg) scale(.55); opacity:.0; }
+  12%{opacity:.95;}
+  50%{ transform:translate(-50%,-50%) rotate(180deg) scale(1.25); opacity:.85; }
+  100%{ transform:translate(-50%,-50%) rotate(360deg) scale(.55); opacity:.0; }
+}
+@keyframes cloverOne{
+  0%{ transform:translate(-50%,-50%) rotate(0deg) scale(.55); opacity:0; }
+  25%{opacity:.9;}
+  70%{ transform:translate(-50%,-50%) rotate(240deg) scale(1.15); opacity:.8; }
+  100%{ transform:translate(-50%,-50%) rotate(360deg) scale(.55); opacity:0; }
+}
+.cloverStrong{
+  opacity:.95;
+  animation: cloverAlarm .9s linear infinite;
+}
+.cloverOnce{
+  opacity:.9;
+  animation: cloverOne 1.2s ease-out 1;
 }
 </style>
 </head>
@@ -237,7 +176,6 @@ html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;ba
   <code id="errText">--</code>
 </div>
 
-<!-- Assets locales -->
 <img id="logoPop" src="https://carletes2010.github.io/monitorsismicov2/assets/poplogosasno.png" alt="SASNO" onerror="this.style.display='none'"/>
 
 <div id="leftRail">
@@ -246,7 +184,7 @@ html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;ba
 
       <button id="alertBtn" class="btn" aria-expanded="false" aria-controls="simMenu" title="Simulacros">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M12 2a6 6 0 0 0-6 6v2.278c0 .52-.214 1.018-.593 1.375L3.7 13.26A1 1 0 0 0 4.4 15h15.2a1 1 0 0 0 .7-1.74l-1.707-1.607a 1.98 1.98 0 0 1-.593-1.375V8a6 6 0 0 0-6-6Zm0 20a3 3 0 0 0 3-3H9a3 3 0 0 0 3 3Z"/>
+          <path d="M12 2a6 6 0 0 0-6 6v2.278c0 .52-.214 1.018-.593 1.375L3.7 13.26A1 1 0 0 0 4.4 15h15.2a1 1 0 0 0 .7-1.74l-1.707-1.607a1.98 1.98 0 0 1-.593-1.375V8a6 6 0 0 0-6-6Zm0 20a3 3 0 0 0 3-3H9a3 3 0 0 0 3 3Z"/>
         </svg>
         <span>Alerta</span>
       </button>
@@ -272,7 +210,7 @@ html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;ba
         <div class="cfgRow">
           <div>
             <label>Mostrar centrales SASMEX</label><br/>
-            <small>Azul oscuro, rojo en alerta</small>
+            <small>Azul oscuro / rojo en alerta</small>
           </div>
           <input id="toggleCentrales" type="checkbox"/>
         </div>
@@ -346,7 +284,7 @@ html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;ba
   </div>
 </div>
 
-<!-- ===== POPUP ALERTA ===== -->
+<!-- POPUP -->
 <div id="popupOverlay" aria-hidden="true">
   <div id="popupCard" role="dialog" aria-label="Pop up de alerta sísmica">
     <button id="popupClose" aria-label="Cerrar">×</button>
@@ -372,12 +310,11 @@ html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;ba
   </div>
 </div>
 
-<!-- Assets locales -->
 <audio id="eqwAudio" src="https://carletes2010.github.io/monitorsismicov2/assets/alertaudio.mp3" preload="auto" playsinline></audio>
 <audio id="advAudio" src="https://carletes2010.github.io/monitorsismicov2/assets/advisory.mp3" preload="auto" playsinline></audio>
 
 <script>
-/* Errores */
+/* Errores visibles */
 (function(){
   const showErr = (msg)=>{
     const panel=document.getElementById('errPanel');
@@ -407,10 +344,9 @@ const toggleCentrales=$('toggleCentrales');
 const toggleLog=$('toggleLog');
 const togglePopup=$('togglePopup');
 
-const strongSoundSelect = $('strongSoundSelect');
-const strongSoundFile = $('strongSoundFile');
+const strongSoundSelect=$('strongSoundSelect');
+const strongSoundFile=$('strongSoundFile');
 
-/* Popup DOM */
 const popupOverlay=$('popupOverlay');
 const popupClose=$('popupClose');
 const popupSub=$('popupSub');
@@ -419,48 +355,32 @@ const popupP=$('popupP');
 const popupDate=$('popupDate');
 
 const CDMX = [-99.1332, 19.4326];
-const FIXED_ZOOM = 5.7;
+const FIXED_ZOOM = 7.2;
 const EVENT_DURATION_MS = 120000;
-
-/* Popup delay */
 const POPUP_DELAY_MS = 15000;
 
-/* Clasificaciones */
 const COLORS={ leve:'#00c853', mod:'#ffc400', fue:'#ff3b4a', viol:'#7a001f', ext:'#6a00ff' };
 const LABELS={ leve:'Sismo Leve', mod:'Sismo Moderado', fue:'Sismo Fuerte', viol:'Sismo Violento', ext:'Sismo Extremo' };
 const ORDER=['leve','mod','fue','viol','ext'];
 const IDX=Object.fromEntries(ORDER.map((k,i)=>[k,i]));
 
-/* Velocidades km/s para popup */
-const SPEED_S = 5.0;
-const SPEED_P = 8.0;
+const SPEED_S=5.0, SPEED_P=8.0;
+const WAVE_P='#ffc400', WAVE_S='#ff3b4a';
 
-/* Ondas */
-const WAVE_P = '#ffc400';
-const WAVE_S = '#ff3b4a';
-
-/* Centrales */
-const CENTRALES_BLUE = '#0b1b3a';
-const CENTRALES_BLUE_STROKE = '#122a57';
-const CENTRALES_RED = '#ff1a1a';
-const CENTRALES_RED_STROKE = '#7a001f';
+const CENTRALES_BLUE='#0b1b3a';
+const CENTRALES_BLUE_STROKE='#122a57';
+const CENTRALES_RED='#ff1a1a';
 
 let map, anim, timer;
 let lastEvt=null;
 let audioPrimed=false;
 let mapReady=false;
 
-/* Animaciones centrales */
-let centralesAlertRAF=null;
-let centralesAlertUntil=0;
-
 /* Popup control */
-let popupToken=0;
-let popupDismissedToken=0;
-let popupUpdateRAF=null;
-let popupDelayTimer=null;
+let popupToken=0, popupDismissedToken=0;
+let popupUpdateRAF=null, popupDelayTimer=null;
 
-/* Centrales (9) */
+/* Centrales (markers) */
 const CENTRALES = [
   {id:'CDMX', name:'Ciudad de México', lng:-99.1332, lat:19.4326},
   {id:'OAX',  name:'Oaxaca',           lng:-96.7266, lat:17.0732},
@@ -472,6 +392,8 @@ const CENTRALES = [
   {id:'COL',  name:'Colima',           lng:-103.7240,lat:19.2433},
   {id:'TOL',  name:'Toluca',           lng:-99.6557, lat:19.2826}
 ];
+
+let centralesMarkers=[];
 
 /* Geometría */
 const circ=([lo,la],r,n=96)=>{
@@ -487,58 +409,45 @@ const km=(a,b,c,d)=>{
 };
 
 /* Persistencia */
-const LS_KEYS = {
-  strongSound:'cfg_strong_sound_url',
-  showCentrales:'cfg_show_centrales',
-  showLog:'cfg_show_log',
-  showPopup:'cfg_show_popup'
-};
+const LS_KEYS={ strongSound:'cfg_strong_sound_url', showCentrales:'cfg_show_centrales', showLog:'cfg_show_log', showPopup:'cfg_show_popup' };
 function loadCfg(){
-  const soundUrl = localStorage.getItem(LS_KEYS.strongSound);
-  if(soundUrl){
-    strongSoundSelect.value = soundUrl;
-    eqwAudio.src = soundUrl;
-  }
+  const soundUrl=localStorage.getItem(LS_KEYS.strongSound);
+  if(soundUrl){ strongSoundSelect.value=soundUrl; eqwAudio.src=soundUrl; }
 
-  const sc = localStorage.getItem(LS_KEYS.showCentrales);
-  toggleCentrales.checked = (sc === null) ? true : (sc === '1');
+  const sc=localStorage.getItem(LS_KEYS.showCentrales);
+  toggleCentrales.checked=(sc===null)?true:(sc==='1');
 
-  const sl = localStorage.getItem(LS_KEYS.showLog);
-  toggleLog.checked = (sl === null) ? true : (sl === '1');
+  const sl=localStorage.getItem(LS_KEYS.showLog);
+  toggleLog.checked=(sl===null)?true:(sl==='1');
 
-  const sp = localStorage.getItem(LS_KEYS.showPopup);
-  togglePopup.checked = (sp === null) ? false : (sp === '1');
+  const sp=localStorage.getItem(LS_KEYS.showPopup);
+  togglePopup.checked=(sp===null)?false:(sp==='1');
 
   applyLogVisibility();
 }
 function saveCfg(){
   localStorage.setItem(LS_KEYS.strongSound, strongSoundSelect.value);
-  localStorage.setItem(LS_KEYS.showCentrales, toggleCentrales.checked ? '1':'0');
-  localStorage.setItem(LS_KEYS.showLog, toggleLog.checked ? '1':'0');
-  localStorage.setItem(LS_KEYS.showPopup, togglePopup.checked ? '1':'0');
+  localStorage.setItem(LS_KEYS.showCentrales, toggleCentrales.checked?'1':'0');
+  localStorage.setItem(LS_KEYS.showLog, toggleLog.checked?'1':'0');
+  localStorage.setItem(LS_KEYS.showPopup, togglePopup.checked?'1':'0');
 }
 
 /* Bitácora visible/oculta */
-function applyLogVisibility(){
-  logPanel.style.display = toggleLog.checked ? 'block' : 'none';
-}
+function applyLogVisibility(){ logPanel.style.display = toggleLog.checked ? 'block' : 'none'; }
 
-/* Semáforo: flecha centrada por ancho real */
+/* Semáforo centrado */
 function setArrowByIndex(idx){
-  idx = Math.max(0, Math.min(ORDER.length-1, idx));
-  const rect = sevBar.getBoundingClientRect();
-  const seg = rect.width / ORDER.length;
-  const x = seg * (idx + 0.5);
-  flecha.style.left = `${x}px`;
+  idx=Math.max(0,Math.min(ORDER.length-1,idx));
+  const rect=sevBar.getBoundingClientRect();
+  const seg=rect.width/ORDER.length;
+  const x=seg*(idx+0.5);
+  flecha.style.left=`${x}px`;
 }
 function setArrowByTipo(tipo){
-  const idx = (tipo in IDX) ? IDX[tipo] : IDX.fue;
+  const idx=(tipo in IDX)?IDX[tipo]:IDX.fue;
   setArrowByIndex(idx);
 }
-window.addEventListener('resize', ()=>{
-  if(lastEvt?.tipo) setArrowByTipo(lastEvt.tipo);
-  else setArrowByIndex(2);
-});
+window.addEventListener('resize',()=>{ lastEvt?.tipo ? setArrowByTipo(lastEvt.tipo) : setArrowByIndex(2); });
 
 /* Audio prime */
 activateBtn.addEventListener('click', ()=>{
@@ -550,7 +459,7 @@ activateBtn.addEventListener('click', ()=>{
     audioPrimed=true;
   }
   overlay.style.display='none';
-}, {once:true});
+},{once:true});
 
 /* Menús */
 function closeAllMenus(){
@@ -560,342 +469,35 @@ function closeAllMenus(){
   cfgBtn.setAttribute('aria-expanded','false');
 }
 alertBtn.onclick=()=>{
-  const open = simMenu.style.display==='flex';
+  const open=simMenu.style.display==='flex';
   closeAllMenus();
-  simMenu.style.display = open ? 'none' : 'flex';
+  simMenu.style.display=open?'none':'flex';
   alertBtn.setAttribute('aria-expanded', String(!open));
 };
 cfgBtn.onclick=()=>{
-  const open = configPanel.style.display==='flex';
+  const open=configPanel.style.display==='flex';
   closeAllMenus();
-  configPanel.style.display = open ? 'none' : 'flex';
+  configPanel.style.display=open?'none':'flex';
   cfgBtn.setAttribute('aria-expanded', String(!open));
 };
 cfgClose.onclick=()=>closeAllMenus();
-document.addEventListener('click', (e)=>{
-  if(!document.getElementById('alertWrap').contains(e.target)) closeAllMenus();
-});
+document.addEventListener('click',(e)=>{ if(!document.getElementById('alertWrap').contains(e.target)) closeAllMenus(); });
 
-/* Config: sonido fuerte */
-strongSoundSelect.addEventListener('change', ()=>{
-  eqwAudio.src = strongSoundSelect.value;
-  saveCfg();
-});
+/* Config */
+strongSoundSelect.addEventListener('change', ()=>{ eqwAudio.src=strongSoundSelect.value; saveCfg(); });
 strongSoundFile.addEventListener('change', ()=>{
-  const f = strongSoundFile.files && strongSoundFile.files[0];
+  const f=strongSoundFile.files && strongSoundFile.files[0];
   if(!f) return;
-  const url = URL.createObjectURL(f);
-  eqwAudio.src = url;
+  eqwAudio.src=URL.createObjectURL(f);
 });
 
-/* Config: centrales */
-toggleCentrales.addEventListener('change', ()=>{
-  saveCfg();
-  if(mapReady) applyCentralesVisibility();
-  if(!toggleCentrales.checked) stopCentralesAlert();
-});
+toggleCentrales.addEventListener('change', ()=>{ saveCfg(); applyCentralesVisibility(); if(!toggleCentrales.checked) stopCentralesAnimations(); });
+toggleLog.addEventListener('change', ()=>{ saveCfg(); applyLogVisibility(); });
+togglePopup.addEventListener('change', ()=>{ saveCfg(); if(!togglePopup.checked) hidePopup(); });
 
-/* Config: bitácora */
-toggleLog.addEventListener('change', ()=>{
-  saveCfg();
-  applyLogVisibility();
-});
-
-/* Config: popup */
-togglePopup.addEventListener('change', ()=>{
-  saveCfg();
-  if(!togglePopup.checked) hidePopup();
-});
-
-/* Popup: close */
-popupClose.onclick=()=>{
-  popupDismissedToken = popupToken;
-  hidePopup();
-};
-popupOverlay.addEventListener('click', (e)=>{
-  if(e.target === popupOverlay){
-    popupDismissedToken = popupToken;
-    hidePopup();
-  }
-});
-
-/* Mapa fijo */
-function initMap(){
-  map = new mapboxgl.Map({
-    container:'map',
-    style:'mapbox://styles/mapbox/outdoors-v12',
-    center: CDMX,
-    zoom: FIXED_ZOOM,
-    minZoom: FIXED_ZOOM,
-    maxZoom: FIXED_ZOOM,
-    interactive: false
-  });
-
-  map.scrollZoom.disable();
-  map.boxZoom.disable();
-  map.dragRotate.disable();
-  map.dragPan.disable();
-  map.keyboard.disable();
-  map.doubleClickZoom.disable();
-  map.touchZoomRotate.disable();
-  map.touchPitch.disable();
-
-  map.on('load', ()=>{
-    mapReady=true;
-    ensureWaveScaffold();
-    addCentralesLayers();
-    applyCentralesVisibility();
-    setArrowByIndex(2);
-    if(lastEvt) drawEvent(lastEvt);
-  });
-}
-
-/* Ondas */
-function ensureWaveScaffold(){
-  const tiny = circ(CDMX, 1);
-
-  if(!map.getSource('ondaP')) map.addSource('ondaP',{type:'geojson', data:tiny});
-  if(!map.getSource('ondaS')) map.addSource('ondaS',{type:'geojson', data:tiny});
-
-  if(!map.getLayer('ondaP-fill'))
-    map.addLayer({id:'ondaP-fill', type:'fill', source:'ondaP',
-      paint:{'fill-color':'transparent','fill-outline-color':WAVE_P}});
-  if(!map.getLayer('ondaP-line'))
-    map.addLayer({id:'ondaP-line', type:'line', source:'ondaP',
-      paint:{'line-color':WAVE_P,'line-width':2,'line-opacity':1},
-      layout:{'line-join':'round','line-cap':'round'}});
-
-  if(!map.getLayer('ondaS-fill'))
-    map.addLayer({id:'ondaS-fill', type:'fill', source:'ondaS',
-      paint:{'fill-color':'transparent','fill-outline-color':WAVE_S}});
-  if(!map.getLayer('ondaS-line'))
-    map.addLayer({id:'ondaS-line', type:'line', source:'ondaS',
-      paint:{'line-color':WAVE_S,'line-width':2,'line-opacity':1},
-      layout:{'line-join':'round','line-cap':'round'}});
-}
-function resetWaves(){
-  const tiny=circ(CDMX,1);
-  map.getSource('ondaP')?.setData(tiny);
-  map.getSource('ondaS')?.setData(tiny);
-}
-
-/* Centrales */
-function addCentralesLayers(){
-  const features = CENTRALES.map(c=>({
-    type:'Feature',
-    properties:{id:c.id,name:c.name},
-    geometry:{type:'Point',coordinates:[c.lng,c.lat]}
-  }));
-
-  if(!map.getSource('centrales')){
-    map.addSource('centrales',{type:'geojson',data:{type:'FeatureCollection',features}});
-  }
-
-  if(!map.getLayer('centrales-dot')){
-    map.addLayer({
-      id:'centrales-dot',
-      type:'circle',
-      source:'centrales',
-      paint:{
-        'circle-radius': 6,
-        'circle-color': CENTRALES_BLUE,
-        'circle-stroke-width': 2,
-        'circle-stroke-color': CENTRALES_BLUE_STROKE,
-        'circle-opacity': 0.95
-      }
-    });
-  }
-
-  if(!map.getLayer('centrales-alert')){
-    map.addLayer({
-      id:'centrales-alert',
-      type:'circle',
-      source:'centrales',
-      paint:{
-        'circle-radius': 10,
-        'circle-color': '#ff1a1a',
-        'circle-opacity': 0.0
-      }
-    });
-  }
-
-  if(!map.getLayer('centrales-label')){
-    map.addLayer({
-      id:'centrales-label',
-      type:'symbol',
-      source:'centrales',
-      layout:{
-        'text-field':['get','id'],
-        'text-size': 12,
-        'text-offset':[0,1.2],
-        'text-anchor':'top'
-      },
-      paint:{
-        'text-color':'#ffffff',
-        'text-halo-color':'rgba(0,0,0,0.75)',
-        'text-halo-width':1.4
-      }
-    });
-  }
-}
-
-function setCentralesNormal(){
-  if(!mapReady || !map.getLayer('centrales-dot')) return;
-  map.setPaintProperty('centrales-dot','circle-color', CENTRALES_BLUE);
-  map.setPaintProperty('centrales-dot','circle-stroke-color', CENTRALES_BLUE_STROKE);
-}
-function setCentralesActiveRed(){
-  if(!mapReady || !map.getLayer('centrales-dot')) return;
-  map.setPaintProperty('centrales-dot','circle-color', CENTRALES_RED);
-  map.setPaintProperty('centrales-dot','circle-stroke-color', CENTRALES_RED_STROKE);
-}
-function stopCentralesAlert(){
-  if(centralesAlertRAF) cancelAnimationFrame(centralesAlertRAF);
-  centralesAlertRAF=null;
-  centralesAlertUntil=0;
-  if(mapReady && map.getLayer('centrales-alert')){
-    map.setPaintProperty('centrales-alert','circle-opacity', 0.0);
-  }
-}
-function applyCentralesVisibility(){
-  const on = !!toggleCentrales.checked;
-  ['centrales-dot','centrales-alert','centrales-label'].forEach(id=>{
-    if(map.getLayer(id)) map.setLayoutProperty(id,'visibility', on ? 'visible':'none');
-  });
-}
-
-/* Pulso único (leve/mod) */
-function oneShotPulse(color){
-  if(!mapReady || !toggleCentrales.checked) return;
-  if(!map.getLayer('centrales-alert')) return;
-
-  stopCentralesAlert();
-  map.setPaintProperty('centrales-alert','circle-color', color);
-
-  const start = performance.now();
-  const D = 1600;
-
-  (function step(now){
-    const p = Math.min(1, (now-start)/D);
-    const ease = 1 - Math.pow(1-p, 3);
-
-    map.setPaintProperty('centrales-alert','circle-radius', 10 + 34*ease);
-    map.setPaintProperty('centrales-alert','circle-opacity', (1-p)*0.55);
-
-    if(p < 1) centralesAlertRAF = requestAnimationFrame(step);
-    else {
-      map.setPaintProperty('centrales-alert','circle-opacity', 0.0);
-      centralesAlertRAF=null;
-    }
-  })(start);
-}
-
-/* Alerta sostenida (fuerte+) */
-function sustainedAlarm(durationMs){
-  if(!mapReady || !toggleCentrales.checked) return;
-  if(!map.getLayer('centrales-alert')) return;
-
-  stopCentralesAlert();
-  map.setPaintProperty('centrales-alert','circle-color', '#ff1a1a');
-
-  const start = performance.now();
-  centralesAlertUntil = start + durationMs;
-
-  (function tick(now){
-    if(now >= centralesAlertUntil){
-      stopCentralesAlert();
-      return;
-    }
-    const t = (now - start) / 1000;
-    const fast = (Math.sin(t * 7.5) + 1) / 2;
-    const slow = (Math.sin(t * 2.2) + 1) / 2;
-    const radius = 10 + 34*fast + 14*slow;
-    const opacity = 0.18 + 0.55*(1-fast);
-
-    map.setPaintProperty('centrales-alert','circle-radius', radius);
-    map.setPaintProperty('centrales-alert','circle-opacity', opacity);
-
-    centralesAlertRAF = requestAnimationFrame(tick);
-  })(start);
-}
-
-/* ===== ESTADO (REGION) del epicentro: SOLO ESTADO (más confiable) ===== */
-function normalizeStateName(name){
-  if(!name) return null;
-  let s = String(name).trim();
-
-  s = s.replace(/^estado de\s+/i, '');
-  s = s.replace(/^province of\s+/i, '');
-  s = s.replace(/^state of\s+/i, '');
-
-  if(/^mexico city$/i.test(s) || /^ciudad de mexico$/i.test(s) || /^cdmx$/i.test(s)){
-    s = 'Ciudad de México';
-  }
-
-  return s.toUpperCase();
-}
-
-async function resolveEpicenterState(lat, lng){
-  try{
-    const url =
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json` +
-      `?types=place,locality,district,region&language=es&limit=1&access_token=${mapboxgl.accessToken}`;
-
-    const r = await fetch(url);
-    const j = await r.json();
-    if(!j || !Array.isArray(j.features) || j.features.length === 0) return null;
-
-    const f = j.features[0];
-    const pt0 = f.place_type && f.place_type[0];
-
-    if(pt0 === 'region'){
-      return normalizeStateName(f.text_es || f.text);
-    }
-
-    const ctx = Array.isArray(f.context) ? f.context : [];
-    const regionCtx = ctx.find(x => typeof x.id === 'string' && x.id.startsWith('region.'));
-    if(regionCtx){
-      return normalizeStateName(regionCtx.text_es || regionCtx.text);
-    }
-
-    const regionFeat = j.features.find(x => x.place_type && x.place_type[0] === 'region');
-    if(regionFeat){
-      return normalizeStateName(regionFeat.text_es || regionFeat.text);
-    }
-
-    return null;
-  }catch(e){
-    return null;
-  }
-}
-
-/* Bitácora */
-function addToLog({tipo, estado, latitud, longitud}, eta0Sec){
-  if(!toggleLog.checked) return;
-  const color = COLORS[tipo] || '#999';
-  const ts = new Date().toLocaleString(undefined,{
-    year:'numeric',month:'2-digit',day:'2-digit',
-    hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false
-  });
-
-  const tipoTexto = LABELS[tipo] || (tipo||'').toUpperCase();
-  const label = estado
-    ? `Sismo en ${estado}`
-    : `Epicentro en ${Number(latitud).toFixed(2)}, ${Number(longitud).toFixed(2)}`;
-
-  const li=document.createElement('div');
-  li.className='entry';
-  li.innerHTML=`
-    <div class="dot" style="background:${color}"></div>
-    <div class="meta">
-      <b>${tipoTexto}</b> · ${ts}<br/>
-      ${label} &nbsp;·&nbsp; Anticipación: ${Math.max(0,Math.round(eta0Sec))} s
-    </div>`;
-  logList.prepend(li);
-  if(logList.children.length>200) logList.removeChild(logList.lastElementChild);
-}
-
-/* POPUP helpers */
+/* Popup */
+popupClose.onclick=()=>{ popupDismissedToken=popupToken; hidePopup(); };
+popupOverlay.addEventListener('click',(e)=>{ if(e.target===popupOverlay){ popupDismissedToken=popupToken; hidePopup(); } });
 function showPopup(){ popupOverlay.style.display='flex'; popupOverlay.setAttribute('aria-hidden','false'); }
 function hidePopup(){
   popupOverlay.style.display='none';
@@ -913,17 +515,207 @@ function fmtPopupDate(d){
   return `${dd} ${mm} ${yy} ${hh}:${mi}:${ss}`;
 }
 
-/* Clear / Evento */
+/* Mapa fijo */
+function initMap(){
+  map=new mapboxgl.Map({
+    container:'map',
+    style:'mapbox://styles/mapbox/outdoors-v12',
+    center:CDMX,
+    zoom:FIXED_ZOOM,
+    minZoom:FIXED_ZOOM,
+    maxZoom:FIXED_ZOOM,
+    interactive:false
+  });
+
+  map.scrollZoom.disable();
+  map.boxZoom.disable();
+  map.dragRotate.disable();
+  map.dragPan.disable();
+  map.keyboard.disable();
+  map.doubleClickZoom.disable();
+  map.touchZoomRotate.disable();
+  map.touchPitch.disable();
+
+  map.on('load', ()=>{
+    mapReady=true;
+    ensureWaveScaffold();
+    buildCentralesMarkers();
+    applyCentralesVisibility();
+    setArrowByIndex(2);
+    if(lastEvt) drawEvent(lastEvt);
+  });
+}
+
+/* Ondas */
+function ensureWaveScaffold(){
+  const tiny=circ(CDMX,1);
+  if(!map.getSource('ondaP')) map.addSource('ondaP',{type:'geojson',data:tiny});
+  if(!map.getSource('ondaS')) map.addSource('ondaS',{type:'geojson',data:tiny});
+
+  if(!map.getLayer('ondaP-fill')) map.addLayer({id:'ondaP-fill',type:'fill',source:'ondaP',paint:{'fill-color':'transparent','fill-outline-color':WAVE_P}});
+  if(!map.getLayer('ondaP-line')) map.addLayer({id:'ondaP-line',type:'line',source:'ondaP',paint:{'line-color':WAVE_P,'line-width':2,'line-opacity':1},layout:{'line-join':'round','line-cap':'round'}});
+
+  if(!map.getLayer('ondaS-fill')) map.addLayer({id:'ondaS-fill',type:'fill',source:'ondaS',paint:{'fill-color':'transparent','fill-outline-color':WAVE_S}});
+  if(!map.getLayer('ondaS-line')) map.addLayer({id:'ondaS-line',type:'line',source:'ondaS',paint:{'line-color':WAVE_S,'line-width':2,'line-opacity':1},layout:{'line-join':'round','line-cap':'round'}});
+}
+function resetWaves(){
+  const tiny=circ(CDMX,1);
+  map.getSource('ondaP')?.setData(tiny);
+  map.getSource('ondaS')?.setData(tiny);
+}
+
+/* ===== Centrales markers + trébol ===== */
+function buildCentralesMarkers(){
+  if(centralesMarkers.length) return;
+
+  for(const c of CENTRALES){
+    const root=document.createElement('div');
+    root.className='centralMarker';
+
+    const dot=document.createElement('div');
+    dot.className='centralDot';
+    dot.style.background=CENTRALES_BLUE;
+    dot.style.border=`2px solid ${CENTRALES_BLUE_STROKE}`;
+
+    const clover=document.createElement('img');
+    clover.className='centralClover';
+    clover.src='https://carletes2010.github.io/monitorsismicov2/assets/trebol.png';
+    clover.alt='alert';
+
+    root.appendChild(clover);
+    root.appendChild(dot);
+
+    const marker=new mapboxgl.Marker({element:root, anchor:'center'})
+      .setLngLat([c.lng,c.lat])
+      .addTo(map);
+
+    centralesMarkers.push({id:c.id, marker, root, dot, clover});
+  }
+}
+
+function applyCentralesVisibility(){
+  const on = !!toggleCentrales.checked;
+  for(const m of centralesMarkers){
+    m.root.style.display = on ? 'block' : 'none';
+  }
+}
+
+function setCentralesDotNormal(){
+  for(const m of centralesMarkers){
+    m.dot.style.background = CENTRALES_BLUE;
+    m.dot.style.border = `2px solid ${CENTRALES_BLUE_STROKE}`;
+  }
+}
+function setCentralesDotRed(){
+  for(const m of centralesMarkers){
+    m.dot.style.background = CENTRALES_RED;
+    m.dot.style.border = `2px solid #7a001f`;
+  }
+}
+
+function stopCentralesAnimations(){
+  for(const m of centralesMarkers){
+    m.clover.classList.remove('cloverStrong','cloverOnce');
+    m.clover.style.opacity='0';
+  }
+}
+
+function oneShotClover(color){
+  if(!toggleCentrales.checked) return;
+  stopCentralesAnimations();
+  for(const m of centralesMarkers){
+    m.clover.style.opacity='0.9';
+    m.clover.style.filter = `drop-shadow(0 6px 10px rgba(0,0,0,.35)) hue-rotate(0deg)`;
+    m.clover.style.background = 'transparent';
+    m.clover.style.mixBlendMode = 'normal';
+    // tint simple: usamos filter con drop-shadow + saturate; (si quieres tinte perfecto: conviértelo a SVG)
+    m.clover.style.filter = `drop-shadow(0 6px 10px rgba(0,0,0,.35))`;
+    m.clover.style.webkitFilter = m.clover.style.filter;
+    m.clover.style.setProperty('color', color);
+    // hack: como es PNG negro, lo invertimos y "tint" con drop-shadow no es perfecto. Mejor: usa trebol.png blanco.
+    m.clover.classList.add('cloverOnce');
+    m.clover.onanimationend = ()=>{
+      m.clover.classList.remove('cloverOnce');
+      m.clover.style.opacity='0';
+    };
+  }
+}
+
+let strongAlarmTimer=null;
+function startStrongClover(){
+  if(!toggleCentrales.checked) return;
+  stopCentralesAnimations();
+  for(const m of centralesMarkers){
+    m.clover.style.opacity='0.95';
+    m.clover.classList.add('cloverStrong');
+  }
+  if(strongAlarmTimer) clearTimeout(strongAlarmTimer);
+  strongAlarmTimer=setTimeout(()=>{
+    stopCentralesAnimations();
+  }, EVENT_DURATION_MS);
+}
+
+/* ===== ESTADO (solo estado) ===== */
+function normalizeStateName(name){
+  if(!name) return null;
+  let s=String(name).trim();
+  s=s.replace(/^estado de\s+/i,'').replace(/^province of\s+/i,'').replace(/^state of\s+/i,'');
+  if(/^mexico city$/i.test(s)||/^ciudad de mexico$/i.test(s)||/^cdmx$/i.test(s)) s='Ciudad de México';
+  return s.toUpperCase();
+}
+async function resolveEpicenterState(lat,lng){
+  try{
+    const url=
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json`+
+      `?types=place,locality,district,region&language=es&limit=1&access_token=${mapboxgl.accessToken}`;
+    const r=await fetch(url);
+    const j=await r.json();
+    if(!j?.features?.length) return null;
+
+    const f=j.features[0];
+    const pt0=f.place_type?.[0];
+
+    if(pt0==='region') return normalizeStateName(f.text_es||f.text);
+
+    const ctx=Array.isArray(f.context)?f.context:[];
+    const regionCtx=ctx.find(x=>typeof x.id==='string' && x.id.startsWith('region.'));
+    if(regionCtx) return normalizeStateName(regionCtx.text_es||regionCtx.text);
+
+    const regionFeat=j.features.find(x=>x.place_type?.[0]==='region');
+    if(regionFeat) return normalizeStateName(regionFeat.text_es||regionFeat.text);
+
+    return null;
+  }catch(e){ return null; }
+}
+
+/* Bitácora */
+function addToLog({tipo,estado,latitud,longitud}, eta0Sec){
+  if(!toggleLog.checked) return;
+  const color=COLORS[tipo]||'#999';
+  const ts=new Date().toLocaleString(undefined,{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  const tipoTexto=LABELS[tipo]||String(tipo||'').toUpperCase();
+  const label=estado ? `Sismo en ${estado}` : `Epicentro en ${Number(latitud).toFixed(2)}, ${Number(longitud).toFixed(2)}`;
+  const li=document.createElement('div');
+  li.className='entry';
+  li.innerHTML=`
+    <div class="dot" style="background:${color}"></div>
+    <div class="meta">
+      <b>${tipoTexto}</b> · ${ts}<br/>
+      ${label} &nbsp;·&nbsp; Anticipación: ${Math.max(0,Math.round(eta0Sec))} s
+    </div>`;
+  logList.prepend(li);
+  if(logList.children.length>200) logList.removeChild(logList.lastElementChild);
+}
+
+/* Clear */
 function clearEvent(){
   if(anim) cancelAnimationFrame(anim);
   if(timer) clearTimeout(timer);
-
   if(popupDelayTimer) clearTimeout(popupDelayTimer);
   popupDelayTimer=null;
 
-  stopCentralesAlert();
-  setCentralesNormal();
-
+  stopCentralesAnimations();
+  setCentralesDotNormal();
   if(mapReady) resetWaves();
 
   tit.textContent='Monitoreando';
@@ -934,10 +726,23 @@ function clearEvent(){
 
   hidePopup();
 
-  [eqwAudio,advAudio].forEach(a=>{a.pause(); a.currentTime=0;});
+  [eqwAudio,advAudio].forEach(a=>{a.pause();a.currentTime=0;});
   lastEvt=null;
 }
 
+/* Popup loop */
+function hidePopup(){
+  popupOverlay.style.display='none';
+  popupOverlay.setAttribute('aria-hidden','true');
+  if(popupUpdateRAF) cancelAnimationFrame(popupUpdateRAF);
+  popupUpdateRAF=null;
+}
+function showPopup(){
+  popupOverlay.style.display='flex';
+  popupOverlay.setAttribute('aria-hidden','false');
+}
+
+/* Evento */
 async function drawEvent(evt){
   lastEvt=evt;
   if(!mapReady) return;
@@ -946,79 +751,72 @@ async function drawEvent(evt){
   clearEvent();
   lastEvt=evt;
 
-  popupToken = Date.now();
-  popupDismissedToken = 0;
+  popupToken=Date.now();
+  popupDismissedToken=0;
 
   const {latitud,longitud}=evt;
-  let tipo = evt.tipo || 'fue';
-  tipo = (tipo in COLORS) ? tipo : 'fue';
+  let tipo=evt.tipo||'fue';
+  tipo=(tipo in COLORS)?tipo:'fue';
 
   const color=COLORS[tipo];
   tit.textContent=LABELS[tipo]||'Monitoreando';
   foco.style.background=color;
-
   setArrowByTipo(tipo);
 
   const epic=[longitud,latitud];
   const d=km(epic[1],epic[0],CDMX[1],CDMX[0]);
   dist.textContent=`Distancia: ${d.toFixed(1)} km`;
 
-  /* ETA HUD (S) */
-  const etaS0 = d / SPEED_S;
+  const etaS0=d/SPEED_S;
   eta.textContent=`ETA: ${etaS0.toFixed(0)} seg`;
 
-  /* ===== estado (solo) ===== */
-  const stateUp = await resolveEpicenterState(latitud, longitud);
-  addToLog({tipo, estado: stateUp, latitud, longitud}, etaS0);
+  const stateUp=await resolveEpicenterState(latitud,longitud);
+  addToLog({tipo,estado:stateUp,latitud,longitud}, etaS0);
 
-  /* Centrales */
+  /* Centrales animación */
   if(['fue','viol','ext'].includes(tipo)){
-    setCentralesActiveRed();
-    sustainedAlarm(EVENT_DURATION_MS);
+    setCentralesDotRed();
+    startStrongClover(); // trébol late+gira 120s
   }else{
-    setCentralesNormal();
-    oneShotPulse(color);
+    setCentralesDotNormal();
+    oneShotClover(color); // una vez
   }
 
-  /* Popup (solo alerta) => SOLO ESTADO y aparece en 15s */
-  const isAlert = ['fue','viol','ext'].includes(tipo);
+  /* Popup solo alerta */
+  const isAlert=['fue','viol','ext'].includes(tipo);
   if(isAlert && togglePopup.checked){
-    popupDelayTimer = setTimeout(()=>{
+    popupDelayTimer=setTimeout(()=>{
       if(!lastEvt) return;
-      if(popupDismissedToken === popupToken) return;
+      if(popupDismissedToken===popupToken) return;
 
-      const labelState = stateUp || '---';
-      popupSub.textContent = `SISMO EN ${labelState} (${Math.round(d)} KM)`;
-      popupDate.textContent = fmtPopupDate(new Date());
+      const labelState=stateUp||'---';
+      popupSub.textContent=`SISMO EN ${labelState} (${Math.round(d)} KM)`;
+      popupDate.textContent=fmtPopupDate(new Date());
 
-      popupS.textContent = Math.max(0, Math.round(etaS0 - (POPUP_DELAY_MS/1000)));
-      popupP.textContent = Math.max(0, Math.round((d / SPEED_P) - (POPUP_DELAY_MS/1000)));
+      const offset=POPUP_DELAY_MS/1000;
+      popupS.textContent=Math.max(0,Math.round(etaS0-offset));
+      popupP.textContent=Math.max(0,Math.round((d/SPEED_P)-offset));
 
       showPopup();
 
-      const tStart = performance.now();
-      const offset = POPUP_DELAY_MS/1000;
-
+      const tStart=performance.now();
       (function popTick(now){
-        if(popupDismissedToken === popupToken) return;
-        const elapsed = (now - tStart)/1000 + offset;
+        if(popupDismissedToken===popupToken) return;
+        const elapsed=(now-tStart)/1000 + offset;
 
-        const sLeft = Math.max(0, Math.round(etaS0 - elapsed));
-        const pLeft = Math.max(0, Math.round((d / SPEED_P) - elapsed));
-
-        popupS.textContent = sLeft;
-        popupP.textContent = pLeft;
-        popupDate.textContent = fmtPopupDate(new Date());
+        popupS.textContent=Math.max(0,Math.round(etaS0-elapsed));
+        popupP.textContent=Math.max(0,Math.round((d/SPEED_P)-elapsed));
+        popupDate.textContent=fmtPopupDate(new Date());
 
         if(elapsed < (EVENT_DURATION_MS/1000)){
-          popupUpdateRAF = requestAnimationFrame(popTick);
+          popupUpdateRAF=requestAnimationFrame(popTick);
         }
       })(tStart);
 
     }, POPUP_DELAY_MS);
   }
 
-  /* Ondas + ETA */
+  /* Ondas */
   const t0=performance.now();
   (function step(now){
     const s=(now-t0)/1000;
@@ -1033,9 +831,9 @@ async function drawEvent(evt){
 
   timer=setTimeout(clearEvent, EVENT_DURATION_MS);
 
-  const toPlay=(['fue','viol','ext'].includes(tipo))?eqwAudio:advAudio;
+  const toPlay=(isAlert)?eqwAudio:advAudio;
   const toStop=(toPlay===eqwAudio)?advAudio:eqwAudio;
-  toStop.pause(); toStop.currentTime=0;
+  toStop.pause();toStop.currentTime=0;
   if(audioPrimed){ toPlay.currentTime=0; toPlay.play().catch(()=>{}); }
 }
 
@@ -1053,6 +851,10 @@ pusher.subscribe('alertas-sasno').bind('mapa_pop', d=>{
   if(d && typeof d.latitud==='number' && typeof d.longitud==='number') drawEvent(d);
   else clearEvent();
 });
+
+/* Popup close */
+popupClose.onclick=()=>{ popupDismissedToken=popupToken; hidePopup(); };
+popupOverlay.addEventListener('click',(e)=>{ if(e.target===popupOverlay){ popupDismissedToken=popupToken; hidePopup(); } });
 
 /* Inicio */
 loadCfg();
