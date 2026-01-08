@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SASNO · Mapa-Pop</title>
+
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.css" rel="stylesheet"/>
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.js"></script>
+<script src="https://js.pusher.com/8.2/pusher.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet"/>
+
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;background:#000;color:#fff}
+#map{position:fixed;inset:0}
+
+/* Barra izquierda (controles + bitácora) */
+#leftRail{position:fixed;top:16px;left:16px;z-index:10;display:flex;flex-direction:column;gap:12px;max-width:340px}
+
+/* Controles */
+.btn{border:1px solid rgba(255,255,255,.14);border-radius:12px;background:rgba(17,25,40,.55);color:#fff;padding:8px 12px;cursor:pointer;display:flex;gap:8px;align-items:center;backdrop-filter:blur(12px) saturate(180%);box-shadow:0 10px 32px rgba(0,0,0,.48)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn:hover:not([disabled]){filter:brightness(1.1)}
+.btn img{width:20px;height:20px}
+#ctrl{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
+
+/* Botón alerta + menú simulacros */
+#alertWrap{position:relative}
+#alertBtn{display:flex;align-items:center;gap:8px}
+#alertBtn svg{width:20px;height:20px}
+#simMenu{
+  position:absolute;top:48px;left:0;min-width:180px;
+  padding:10px;border-radius:12px;background:rgba(17,25,40,.95);
+  border:1px solid rgba(255,255,255,.14);box-shadow:0 10px 32px rgba(0,0,0,.48);
+  display:none;flex-direction:column;gap:8px;z-index:20
+}
+.sim{border:1px solid rgba(255,255,255,.14);border-radius:10px;background:rgba(255,255,255,.06);color:#fff;padding:8px 10px;cursor:pointer;font-size:14px;text-align:left}
+.sim:hover{filter:brightness(1.15)}
+
+/* Bitácora */
+#log{
+  border:1px solid rgba(255,255,255,.14);border-radius:12px;
+  background:rgba(17,25,40,.55);backdrop-filter:blur(12px) saturate(180%);
+  box-shadow:0 10px 32px rgba(0,0,0,.48);padding:12px;max-height:44vh;overflow:auto;
+  color:#fff; /* todos los textos en blanco */
+}
+#log h3{margin:0 0 8px;font-size:16px;color:#fff}
+.entry{display:grid;grid-template-columns:auto 1fr;gap:8px;padding:8px;border-radius:10px;background:rgba(255,255,255,.06);margin-bottom:8px;color:#fff}
+.dot{width:14px;height:14px;border-radius:50%;margin-top:3px;box-shadow:0 0 0 2px rgba(0,0,0,.3) inset}
+.meta{font-size:12px;line-height:1.25;color:#fff}
+.meta b{color:#fff}
+
+/* HUD y semáforo */
+#hud{position:fixed;left:14px;bottom:60px;z-index:9;width:260px;padding:16px 18px;border-radius:16px;background:rgba(17,25,40,.55);backdrop-filter:blur(12px) saturate(180%);border:1px solid rgba(255,255,255,.14);box-shadow:0 10px 32px rgba(0,0,0,.48);color:#fff}
+#hud h1{margin:0 0 8px;font-size:22px;color:#fff}
+#hud p{margin:6px 0 0;font-size:16px;font-weight:600;color:#fff}
+#sema{position:fixed;right:14px;bottom:60px;z-index:9;width:240px;padding:16px;border-radius:16px;background:rgba(17,25,40,.55);backdrop-filter:blur(12px) saturate(180%);border:1px solid rgba(255,255,255,.14);box-shadow:0 10px 32px rgba(0,0,0,.48);text-align:center;color:#fff}
+#foco{width:40px;height:40px;margin:0 auto 10px;border-radius:50%;background:#999;box-shadow:0 0 14px rgba(0,0,0,.5) inset,0 0 8px rgba(0,0,0,.35)}
+.bar{display:flex;height:28px;border-radius:8px;overflow:hidden;font-size:12px;font-weight:700}
+.bar div{flex:1;display:flex;align-items:center;justify-content:center;color:#fff}
+.leve{background:#00c853}.mod{background:#ffc400}.fue{background:#ff3b4a}
+#flecha{font-size:18px;margin-top:6px;text-shadow:0 1px 3px #000;transition:transform .3s;color:#fff}
+
+/* Logo */
+#logoPop{position:fixed;top:50px;right:60px;z-index:9;width:280px;height:auto;user-select:none}
+
+/* Overlay de activación de audio */
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000}
+#overlay .panel{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(10px);padding:24px 28px;border-radius:18px;text-align:center;max-width:90%}
+#overlay h2{margin:0 0 6px;font-size:22px;color:#fff}
+#overlay p{margin:0 0 14px;font-size:14px;color:#fff}
+#overlay button{border:none;border-radius:12px;padding:10px 16px;cursor:pointer;background:#00c853;color:#000;font-weight:700}
+#overlay button:active{transform:scale(.98)}
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- Logo -->
+<img id="logoPop" src="/assets/poplogosasno.png" alt="SASNO" onerror="this.style.display='none'"/>
+
+<!-- Barra izquierda: controles + bitácora -->
+<div id="leftRail">
+  <div id="ctrl">
+    <button id="locBtn" class="btn" title="Centrar en mi ubicación">
+      <img src="/assets/icon-location.png" alt="Ubicación" onerror="this.style.display='none'"><span>Ubicar</span>
+    </button>
+    <button id="themeBtn" class="btn" title="Cambiar tema">
+      <img src="/assets/icon-moon.png" alt="Tema" onerror="this.style.display='none'"><span>Tema</span>
+    </button>
+
+    <!-- Botón Alerta + menú simulacros -->
+    <div id="alertWrap">
+      <button id="alertBtn" class="btn" aria-expanded="false" aria-controls="simMenu" title="Simulacros">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a6 6 0 0 0-6 6v2.278c0 .52-.214 1.018-.593 1.375L3.7 13.26A1 1 0 0 0 4.4 15h15.2a1 1 0 0 0 .7-1.74l-1.707-1.607a1.98 1.98 0 0 1-.593-1.375V8a6 6 0 0 0-6-6Zm0 20a3 3 0 0 0 3-3H9a3 3 0 0 0 3 3Z"/></svg>
+        <span>Alerta</span>
+      </button>
+      <div id="simMenu" role="menu" aria-label="Simulacros">
+        <button class="sim" id="simEQW">Simular EQW</button>
+        <button class="sim" id="simADV">Simular Advisory</button>
+        <button class="sim" id="simWAT">Simular Watch</button>
+        <button class="sim" id="simCLR">Limpiar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bitácora -->
+  <div id="log">
+    <h3>Bitácora de eventos</h3>
+    <div id="logList" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- HUD -->
+<div id="hud">
+  <h1 id="tit">Monitoreando</h1>
+  <p id="dist">Distancia: -- km</p>
+  <p id="eta">ETA: -- seg</p>
+</div>
+
+<div id="sema">
+  <div id="foco"></div>
+  <div class="bar"><div class="leve">LEVE</div><div class="mod">MOD</div><div class="fue">FUE</div></div>
+  <div id="flecha">▲</div>
+</div>
+
+<!-- Overlay para activar audio -->
+<div id="overlay">
+  <div class="panel">
+    <h2>Presiona para activar sistema</h2>
+    <p>Habilita audio y notificaciones de alerta</p>
+    <button id="activateBtn">Activar</button>
+  </div>
+</div>
+
+<!-- Audios -->
+<audio id="eqwAudio" src="/assets/alertaudio.mp3" preload="auto" playsinline></audio>
+<audio id="advAudio" src="/assets/advisory.mp3" preload="auto" playsinline></audio>
+
+<script>
+mapboxgl.accessToken='pk.eyJ1IjoiYWx6b2FsZXJ0YXNpc21pY2EiLCJhIjoiY2wyNHM2c25vMjNoejNpcWRrb3Y4MzV6ciJ9.D2pXLxF0emuIHvrW-n181Q';
+
+const $=id=>document.getElementById(id);
+const tit=$('tit'),dist=$('dist'),eta=$('eta'),foco=$('foco'),flecha=$('flecha');
+const eqwAudio=$('eqwAudio'), advAudio=$('advAudio');
+const overlay=$('overlay'), activateBtn=$('activateBtn');
+const logList=$('logList');
+const themeBtn=$('themeBtn');
+
+const COLORS={ eqw:'#ff3b4a', watch:'#ffc400', advisory:'#00c853' }; // HEX
+const LABELS={ eqw:'Alerta Sísmica', watch:'Sismo Moderado', advisory:'Sismo Ligero' };
+const SEG=240/3;
+let user=[-99.1332,19.4326];
+let styleName='dark';
+let map, anim, timer, lastEvt=null, audioPrimed=false, userIconLoaded=false;
+
+/* Geometría */
+const circ=([lo,la],r,n=96)=>{
+  const cos=Math.max(0.1,Math.cos(la*Math.PI/180));
+  const dx=r/(111320*cos), dy=r/110574, c=[];
+  for(let i=0;i<n;i++){ const a=2*Math.PI*i/n; c.push([lo+dx*Math.cos(a), la+dy*Math.sin(a)]) }
+  c.push(c[0]);
+  return {type:'Feature',geometry:{type:'Polygon',coordinates:[c]}};
+};
+const line=(a,b)=>({type:'Feature',geometry:{type:'LineString',coordinates:[a,b]}});
+const km=(a,b,c,d)=>{const R=6371,x=.017453;return 2*R*Math.asin(Math.sqrt(.5-.5*Math.cos((c-a)*x)+Math.cos(a*x)*Math.cos(c*x)*(.5-.5*Math.cos((d-b)*x))));};
+
+/* Overlay: activar sistema (primar audio) */
+activateBtn.addEventListener('click', ()=>{
+  if(!audioPrimed){
+    [eqwAudio,advAudio].forEach(a=>{
+      const v=a.volume; a.volume=0.0001;
+      a.play().then(()=>{a.pause(); a.currentTime=0; a.volume=v;}).catch(()=>{});
+    });
+    audioPrimed=true;
+  }
+  overlay.style.display='none';
+}, {once:true});
+
+/* Mapa */
+function initMap(){
+  map=new mapboxgl.Map({
+    container:'map',
+    style:`mapbox://styles/mapbox/${styleName}-v10`,
+    center:user, zoom:5.3
+  });
+
+  map.on('load', ()=>{
+    // Usuario (icono remoto; si falla → círculo)
+    map.loadImage('/assets/usermap.png', (err, img)=>{
+      if(!err && img){
+        if(!map.hasImage('user-icon')) map.addImage('user-icon', img);
+        userIconLoaded=true;
+      }
+      if(!map.getSource('user')){
+        map.addSource('user',{type:'geojson', data:{type:'Feature', geometry:{type:'Point', coordinates:user}}});
+      }
+      if(!map.getLayer('user-layer')){
+        if(userIconLoaded){
+          map.addLayer({id:'user-layer', type:'symbol', source:'user',
+            layout:{'icon-image':'user-icon','icon-size':0.06}});
+        }else{
+          map.addLayer({id:'user-layer', type:'circle', source:'user',
+            paint:{'circle-radius':6,'circle-color':'#ffffff','circle-stroke-width':2,'circle-stroke-color':'#000000'}});
+        }
+      }
+    });
+
+    // Ondas
+    ensureWaveScaffold('#ffffff');
+
+    if(lastEvt) drawEvent(lastEvt);
+  });
+}
+
+function ensureWaveScaffold(color){
+  const tiny=circ(user,1);
+  if(!map.getSource('ondaP')) map.addSource('ondaP',{type:'geojson', data:tiny});
+  if(!map.getSource('ondaS')) map.addSource('ondaS',{type:'geojson', data:tiny});
+
+  if(!map.getLayer('ondaP-fill'))
+    map.addLayer({id:'ondaP-fill', type:'fill', source:'ondaP',
+      paint:{'fill-color':'transparent','fill-outline-color':color}});
+  if(!map.getLayer('ondaP-line'))
+    map.addLayer({id:'ondaP-line', type:'line', source:'ondaP',
+      paint:{'line-color':color,'line-width':2,'line-opacity':1}, layout:{'line-join':'round','line-cap':'round'}});
+  if(!map.getLayer('ondaS-fill'))
+    map.addLayer({id:'ondaS-fill', type:'fill', source:'ondaS',
+      paint:{'fill-color':'transparent','fill-outline-color':color}});
+  if(!map.getLayer('ondaS-line'))
+    map.addLayer({id:'ondaS-line', type:'line', source:'ondaS',
+      paint:{'line-color':color,'line-width':2,'line-opacity':1}, layout:{'line-join':'round','line-cap':'round'}});
+}
+
+function setWaveColor(color){
+  ['ondaP-line','ondaS-line'].forEach(id=> map.getLayer(id)&&map.setPaintProperty(id,'line-color', color));
+  ['ondaP-fill','ondaS-fill'].forEach(id=> map.getLayer(id)&&map.setPaintProperty(id,'fill-outline-color', color));
+}
+function resetWaves(){
+  const tiny=circ(user,1);
+  map.getSource('ondaP')?.setData(tiny);
+  map.getSource('ondaS')?.setData(tiny);
+}
+function updateUser(){
+  const src=map.getSource('user');
+  if(src) src.setData({type:'Feature',geometry:{type:'Point',coordinates:user}});
+}
+
+/* Geolocalización (no crítica si permisos bloquean) */
+try{
+  navigator.geolocation.getCurrentPosition(pos=>{
+    user=[pos.coords.longitude,pos.coords.latitude];
+    updateUser(); map.flyTo({center:user, zoom:5.3});
+  }, ()=>{}, {timeout:2000});
+}catch{}
+
+/* Epicentro: nombre corto con Mapbox Geocoding */
+async function resolveEpicenterName(lat, lng){
+  try{
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?types=place,locality,region,district&language=es&access_token=${mapboxgl.accessToken}`;
+    const r = await fetch(url);
+    const j = await r.json();
+    if(!j?.features?.length) return null;
+
+    const place = j.features.find(f=>['place','locality','district'].includes(f.place_type?.[0])) || j.features[0];
+    const region = j.features.find(f=>f.place_type?.[0]==='region');
+    const city = place?.text_es || place?.text || place?.place_name;
+    const state = region?.text_es || region?.text || '';
+    if(city && state) return `Epicentro en ${city}, ${state}`;
+    if(city) return `Epicentro en ${city}`;
+    if(state) return `Epicentro en ${state}`;
+    return null;
+  }catch(e){
+    return null;
+  }
+}
+
+/* Bitácora */
+function addToLog({tipo, epicentroNombre, latitud, longitud}, eta0Sec){
+  const color = COLORS[tipo] || '#999';
+  const ts = new Date().toLocaleString(undefined,{
+    year:'numeric',month:'2-digit',day:'2-digit',
+    hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false
+  });
+
+  const tipoTexto = LABELS[tipo] || (tipo||'').toUpperCase();
+  const label = epicentroNombre
+    ? epicentroNombre
+    : `Epicentro en ${Number(latitud).toFixed(2)}, ${Number(longitud).toFixed(2)}`;
+
+  const li = document.createElement('div');
+  li.className='entry';
+  li.innerHTML = `
+    <div class="dot" style="background:${color}"></div>
+    <div class="meta">
+      <b>${tipoTexto}</b> · ${ts}<br/>
+      ${label} &nbsp;·&nbsp; Anticipación: ${Math.max(0,Math.round(eta0Sec))} s
+    </div>
+  `;
+  logList.prepend(li);
+  if(logList.children.length>200) logList.removeChild(logList.lastElementChild);
+}
+
+/* HUD/Clear */
+function clearEvent(){
+  if(anim) cancelAnimationFrame(anim);
+  if(timer) clearTimeout(timer);
+
+  resetWaves();
+
+  if(map.getLayer('ln')) map.removeLayer('ln');
+  if(map.getSource('ln')) map.removeSource('ln');
+  if(map.getLayer('epic')) map.removeLayer('epic');
+  if(map.getSource('epic')) map.removeSource('epic');
+
+  tit.textContent='Monitoreando';
+  // Textos siempre blancos (no colorear por evento)
+  tit.style.color='#fff'; dist.style.color='#fff'; eta.style.color='#fff';
+  dist.textContent='Distancia: -- km';
+  eta.textContent='ETA: -- seg';
+  foco.style.background='#999';
+  flecha.style.transform=`translateX(${-SEG}px)`;
+
+  [eqwAudio,advAudio].forEach(a=>{a.pause(); a.currentTime=0;});
+  lastEvt=null;
+
+  // permitir cambiar tema de nuevo
+  themeBtn.disabled=false;
+  themeBtn.title='Cambiar tema';
+}
+
+/* Dibujo/animación del evento */
+async function drawEvent(evt){
+  if(!map?.isStyleLoaded()){ setTimeout(()=>drawEvent(evt), 50); return; }
+  ensureWaveScaffold('#ffffff');
+
+  clearEvent();
+  lastEvt=evt;
+
+  const {latitud, longitud, tipo='eqw'}=evt;
+  const color = COLORS[tipo] || COLORS.eqw;
+
+  // Bloquear cambio de tema mientras dure el evento
+  themeBtn.disabled=true;
+  themeBtn.title='No disponible durante evento activo';
+
+  // Título HUD en texto blanco fijo (pero con mensaje por tipo)
+  tit.textContent = LABELS[tipo] || 'Monitoreando';
+  tit.style.color='#fff'; dist.style.color='#fff'; eta.style.color='#fff';
+  foco.style.background=color;
+  flecha.style.transform=`translateX(${({advisory:0,watch:1,eqw:2}[tipo])*SEG-SEG}px)`;
+
+  const epic=[longitud,latitud];
+
+  map.addSource('epic',{type:'geojson', data:{type:'Feature', geometry:{type:'Point', coordinates:epic}}});
+  map.addLayer({id:'epic', type:'circle', source:'epic', paint:{'circle-radius':8,'circle-color':color}});
+  map.addSource('ln',{type:'geojson', data:line(epic,user)});
+  map.addLayer({id:'ln', type:'line', source:'ln', paint:{'line-color':color,'line-width':2}});
+
+  setWaveColor(color);
+
+  const d=km(epic[1],epic[0],user[1],user[0]);
+  dist.textContent=`Distancia: ${d.toFixed(1)} km`;
+  const eta0=d/5; eta.textContent=`ETA: ${eta0.toFixed(0)} seg`;
+
+  // Nombre corto del epicentro
+  const epicentroNombre = await resolveEpicenterName(latitud, longitud);
+  addToLog({tipo, epicentroNombre, latitud, longitud}, eta0);
+
+  const t0=performance.now();
+  (function step(t){
+    const s=(t-t0)/1000;
+    if(s>140) return;
+    const p=circ(epic, Math.max(1, 8000*s));
+    const sc=circ(epic, Math.max(1, 5000*s));
+    map.getSource('ondaP')?.setData(p);
+    map.getSource('ondaS')?.setData(sc);
+    eta.textContent=`ETA: ${Math.max(eta0-s,0).toFixed(0)} seg`;
+    anim=requestAnimationFrame(step);
+  })(t0);
+
+  timer=setTimeout(clearEvent, 140000);
+
+  const toPlay=(tipo==='eqw')?eqwAudio:advAudio;
+  const toStop=(tipo==='eqw')?advAudio:eqwAudio;
+  toStop.pause(); toStop.currentTime=0;
+  if(audioPrimed){ toPlay.currentTime=0; toPlay.play().catch(()=>{}); }
+
+  map.flyTo({center:user, zoom:5.3});
+}
+
+/* Controles UI */
+$('locBtn').onclick=()=> map.flyTo({center:user, zoom:5.3});
+$('themeBtn').onclick=()=>{
+  if(lastEvt){ return; } // seguridad extra (además del disabled)
+  styleName=(styleName==='dark')?'light':'dark';
+  const old=map; initMap(); old.remove();
+};
+
+/* Menú simulacros (oculto tras botón Alerta) */
+const alertBtn=$('alertBtn'), simMenu=$('simMenu');
+alertBtn.onclick=()=>{
+  const open = simMenu.style.display==='flex';
+  simMenu.style.display = open ? 'none' : 'flex';
+  alertBtn.setAttribute('aria-expanded', String(!open));
+};
+document.addEventListener('click', (e)=>{
+  if(!document.getElementById('alertWrap').contains(e.target)) {
+    simMenu.style.display='none'; alertBtn.setAttribute('aria-expanded','false');
+  }
+});
+
+/* Acciones simulacros */
+$('simEQW').onclick=()=>drawEvent({latitud:16.85,longitud:-99.9,tipo:'eqw'});
+$('simADV').onclick=()=>drawEvent({latitud:17.5,longitud:-98.7,tipo:'advisory'});
+$('simWAT').onclick=()=>drawEvent({latitud:18.2,longitud:-100.2,tipo:'watch'});
+$('simCLR').onclick=()=>clearEvent();
+
+/* Pusher EN VIVO */
+const pusher = new Pusher('0f74c31648d3adb34e1b',{cluster:'us2',forceTLS:true});
+pusher.subscribe('alertas-sasno').bind('mapa_pop', d=>{
+  if(d && typeof d.latitud==='number' && typeof d.longitud==='number'){
+    drawEvent(d);
+  }else{
+    clearEvent();
+  }
+});
+
+/* Inicio */
+initMap();
+</script>
+</body>
+</html>
