@@ -403,6 +403,42 @@ c.push(c[0]);
 return {type:'Feature',geometry:{type:'Polygon',coordinates:[c]}};
 }
 
+/* ===========================
+   CÍRCULOS ESTÁTICOS (50-300km)
+   =========================== */
+const RINGS_KM=[50,100,150,200,250,300];
+function addStaticRingsScaffold(){
+if(!mapReady) return;
+if(!map.getSource('rings')) map.addSource('rings',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+if(!map.getLayer('rings-line')){
+map.addLayer({
+id:'rings-line',
+type:'line',
+source:'rings',
+paint:{
+'line-color':'rgba(255,255,255,.55)',
+'line-width':1,
+'line-opacity':1
+},
+layout:{'line-join':'round','line-cap':'round'}
+});
+}
+}
+function updateStaticRings(epicLngLat){
+if(!mapReady) return;
+const feats=RINGS_KM.map(kmVal=>{
+const rMeters=kmVal*1000;
+const poly=circMeters(epicLngLat, rMeters);
+poly.properties={km:kmVal};
+return poly;
+});
+map.getSource('rings')?.setData({type:'FeatureCollection',features:feats});
+}
+function clearStaticRings(){
+if(!mapReady) return;
+map.getSource('rings')?.setData({type:'FeatureCollection',features:[]});
+}
+
 /* Reverse geocode: SOLO ESTADO */
 function normalizeStateName(name){
 if(!name) return null;
@@ -504,6 +540,7 @@ map.on('error',(e)=>showErr((e?.error?.message)||JSON.stringify(e?.error||e)));
 map.on('load', ()=>{
 mapReady=true;
 addWavesScaffold();
+addStaticRingsScaffold(); /* <-- agregado */
 addCentrales();
 createTrebolMarkers();
 loadCfg();
@@ -657,6 +694,8 @@ pushLog(tipo,color, state ? `Sismo en ${state}` : `Lat:${latitud} Lon:${longitud
 
 const epic=[longitud,latitud];
 addWavesScaffold();
+addStaticRingsScaffold();     /* <-- agregado */
+updateStaticRings(epic);      /* <-- agregado (círculos estáticos 50-300km) */
 startWavesAndCountdown(epic, etaS0, etaP0);
 
 const isAlert=['fue','viol','ext'].includes(tipo);
@@ -710,6 +749,7 @@ if(rafWaves){ cancelAnimationFrame(rafWaves); rafWaves=null; }
 if(rafPopup){ cancelAnimationFrame(rafPopup); rafPopup=null; }
 
 if(mapReady) resetWaves();
+if(mapReady) clearStaticRings(); /* <-- agregado */
 
 toggleTrebolAnimation(false);
 foco.style.background='#999';
