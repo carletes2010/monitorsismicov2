@@ -222,7 +222,9 @@ onerror="this.style.display='none'"/>
 <label style="font-weight:800">Sonido Alerta</label>
 <select id="strongSoundSelect">
 <option value="https://carletes2010.github.io/monitorsismicov2/assets/alertaudio.mp3">Predeterminado</option>
-<option value="https://carletes2010.github.io/monitorsismicov2/assets/advisory.mp3">Alterno</option>
+<option value="https://carletes2010.github.io/monitorsismicov2/assets/alerta67.mp3">Alerta Presidencial</option>
+<option value="https://carletes2010.github.io/monitorsismicov2/assets/CellBroadcast.mp3">Cell Broadcast</option>
+<option value="https://carletes2010.github.io/monitorsismicov2/assets/audiooficial.mp3">Audio Oficial</option>
 </select>
 <input id="strongSoundFile" type="file" accept="audio/*"/>
 </div>
@@ -249,7 +251,7 @@ onerror="this.style.display='none'"/>
 <div id="foco"></div>
 <div class="barWrap">
 <div class="bar" id="sevBar">
-<div class="leve">LEVE</div><div class="mod">MOD</div><div class="fue">FUE</div><div class="viol">VIOL</div><div class="ext">EXT</div>
+<div class="leve">LEVE</div><div class="mod">MODE</div><div class="fue">FUER</div><div class="viol">VIOL</div><div class="ext">EXTR</div>
 </div>
 <div id="flecha">▲</div>
 </div>
@@ -287,6 +289,11 @@ onerror="this.style.display='none'"/>
 <audio id="eqwAudio"
 src="https://carletes2010.github.io/monitorsismicov2/assets/alertaudio.mp3"
 preload="auto" playsinline></audio>
+
+<audio id="eqwAudio2"
+src="https://carletes2010.github.io/monitorsismicov2/assets/alerta67.mp3"
+preload="auto" playsinline></audio>
+
 <audio id="advAudio"
 src="https://carletes2010.github.io/monitorsismicov2/assets/advisory.mp3"
 preload="auto" playsinline></audio>
@@ -481,7 +488,7 @@ function initMap(){
 try{
 map=new mapboxgl.Map({
 container:'map',
-style:'mapbox://styles/mapbox/outdoors-v11',
+style:'mapbox://styles/mapbox/outdoors-v12',
 center:CDMX,
 zoom:FIXED_ZOOM,
 minZoom:FIXED_ZOOM,
@@ -546,7 +553,7 @@ if(!map.getSource('centrales')) map.addSource('centrales',{type:'geojson',data:{
 if(!map.getLayer('centrales-dot')){
 map.addLayer({
 id:'centrales-dot',type:'circle',source:'centrales',
-paint:{'circle-radius':9,'circle-color':'#0b1b3a','circle-stroke-width':3,'circle-stroke-color':'#0b1b3a'}
+paint:{'circle-radius':9,'circle-color':'#004AAD','circle-stroke-width':4,'circle-stroke-color':'#7ED957'}
 });
 }
 
