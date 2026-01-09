@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>SASNO · Mapa-Pop</title>
+
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.css" rel="stylesheet"/>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.js"></script>
+  <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet"/>
+
+  <link rel="stylesheet" href="./styles.css"/>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <!-- ✅ LOGIN (FIREBASE) -->
+  <div id="loginOverlay" aria-hidden="false">
+    <div class="panel">
+      <h2>Iniciar sesión</h2>
+      <p>Acceso restringido · SASNO</p>
+
+      <div class="lRow">
+        <label for="loginEmail">CORREO</label>
+        <input id="loginEmail" type="email" autocomplete="username" placeholder="correo@dominio.com"/>
+      </div>
+
+      <div class="lRow">
+        <label for="loginPass">CONTRASEÑA</label>
+        <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••"/>
+      </div>
+
+      <div id="loginActions">
+        <button id="loginBtn" class="btn">Entrar</button>
+        <button id="resetBtn" class="linkBtn" type="button">Restaurar contraseña</button>
+      </div>
+
+      <div id="loginMsg"></div>
+    </div>
+  </div>
+
+  <div id="loader" aria-hidden="false">
+    <div id="loaderInner">
+      <img src="https://carletes2010.github.io/monitorsismicov2/assets/poplogosasno.png" alt="SASNO" onerror="this.style.display='none'"/>
+      <small>Loading MONITOR_SASNO_V2_1.0 …</small>
+    </div>
+  </div>
+
+  <div id="topBanner"></div>
+
+  <div id="mapClock">
+    <div class="sub">FECHA Y HORA</div>
+    <div class="dt" id="clockText">--</div>
+  </div>
+
+  <div id="errPanel"><b>Error</b><code id="errText">--</code></div>
+
+  <img id="logoPop"
+    src="https://carletes2010.github.io/monitorsismicov2/assets/poplogosasno.png"
+    alt="SASNO"
+    onerror="this.style.display='none'"/>
+
+  <div id="leftRail">
+    <div id="ctrl">
+      <div id="alertWrap">
+        <button id="alertBtn" class="btn">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2a6 6 0 0 0-6 6v2.278c0 .52-.214 1.018-.593 1.375L3.7 13.26A1 1 0 0 0 4.4 15h15.2a1 1 0 0 0 .7-1.74l-1.707-1.607a 1.98 1.98 0 0 1-.593-1.375V8a6 6 0 0 0-6-6Zm0 20a3 3 0 0 0 3-3H9a3 3 0 0 0 3 3Z"/>
+          </svg>
+          <span>Alerta</span>
+        </button>
+
+        <button id="cfgBtn" class="btn"><span>⚙️</span><span>Config</span></button>
+
+        <div id="simMenu" role="menu">
+          <button class="sim" id="simLEV">Simular Leve</button>
+          <button class="sim" id="simMOD">Simular Moderado</button>
+          <button class="sim" id="simFUE">Simular Fuerte</button>
+          <button class="sim" id="simCLR">Limpiar</button>
+        </div>
+
+        <div id="configPanel" role="dialog">
+          <div class="cfgTitle">Configuración</div><div class="cfgDivider"></div>
+
+          <div class="cfgRow">
+            <div><label>Mostrar centrales</label><br/><small>Azul fijo (con alerta)</small></div>
+            <input id="toggleCentrales" type="checkbox"/>
+          </div>
+
+          <div class="cfgRow">
+            <div><label>Mostrar bitácora</label><br/><small>Panel de eventos</small></div>
+            <input id="toggleLog" type="checkbox"/>
+          </div>
+
+          <div class="cfgRow">
+            <div><label>Pop up (alerta)</label><br/><small>Solo FUE/VIOL/EXT, aparece en 15s</small></div>
+            <input id="togglePopup" type="checkbox"/>
+          </div>
+
+          <div class="cfgRow">
+            <div><label>Mostrar simbología</label><br/><small>Leyenda animada</small></div>
+            <input id="toggleSymb" type="checkbox"/>
+          </div>
+
+          <div class="cfgDivider"></div>
+
+          <div class="cfgBlock">
+            <label style="font-weight:800">Sonido Alerta</label>
+            <select id="strongSoundSelect">
+              <option value="https://carletes2010.github.io/monitorsismicov2/assets/alertaudio.mp3">Predeterminado</option>
+              <option value="https://carletes2010.github.io/monitorsismicov2/assets/alerta67.mp3">Alerta Presidencial</option>
+              <option value="https://carletes2010.github.io/monitorsismicov2/assets/CellBroadcast.mp3">Cell Broadcast</option>
+              <option value="https://carletes2010.github.io/monitorsismicov2/assets/audiooficial.mp3">Audio Oficial</option>
+            </select>
+            <input id="strongSoundFile" type="file" accept="audio/*"/>
+          </div>
+
+          <div class="cfgDivider"></div>
+          <div class="cfgBtnRow"><button id="cfgClose" class="btn">Cerrar</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="log">
+      <h3>Bitácora</h3>
+      <div id="logList"></div>
+    </div>
+  </div>
+
+  <div id="hud">
+    <h1 id="tit">Monitoreando</h1>
+    <p id="dist">Distancia: -- km</p>
+    <p id="eta">ETA: -- seg</p>
+  </div>
+
+  <div id="rightStack">
+    <div id="symb">
+      <h3>Simbología</h3>
+      <div class="symbList">
+        <div class="symbItem">
+          <div class="symbIcon" aria-hidden="true">
+            <div class="ring p"></div>
+            <div class="ring s"></div>
+          </div>
+          <div class="symbLabel">Ondas P y S</div>
+        </div>
+
+        <div class="symbItem">
+          <div class="symbIcon" aria-hidden="true">
+            <div class="centralMini"></div>
+          </div>
+          <div class="symbLabel">Centrales</div>
+        </div>
+
+        <div class="symbItem">
+          <div class="symbIcon" aria-hidden="true">
+            <img class="miniTrebol" src="https://carletes2010.github.io/monitorsismicov2/assets/trebol.png" alt=""/>
+          </div>
+          <div class="symbLabel">Alerta Sísmica</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sema">
+      <div id="foco"></div>
+      <div class="barWrap">
+        <div class="bar" id="sevBar">
+          <div class="leve">LEVE</div><div class="mod">MODE</div><div class="fue">FUER</div><div class="viol">VIOL</div><div class="ext">EXTR</div>
+        </div>
+        <div id="flecha">▲</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="overlay">
+    <div class="panel">
+      <h2>Sistema SASNO</h2>
+      <p>Activar audio y notificaciones</p>
+      <button id="activateBtn" class="btn">Activar</button>
+    </div>
+  </div>
+
+  <div id="popupOverlay" aria-hidden="true">
+    <div id="popupCard">
+      <button id="popupClose">×</button>
+      <div id="popupIcon">
+        <svg viewBox="0 0 64 64" width="100%" height="100%">
+          <path d="M32 6 L60 54 H4 Z" fill="none" stroke="white" stroke-width="5"/>
+          <path d="M32 22 v18" stroke="white" stroke-width="6"/>
+          <circle cx="32" cy="48" r="3.5" fill="white"/>
+        </svg>
+      </div>
+      <div id="popupTitle">ALERTA SÍSMICA</div>
+      <div id="popupSub">SISMO EN --</div>
+      <div id="popupMid">ANTICIPACIÓN</div>
+      <div id="popupTimes">
+        <div>ONDA S: <span id="popupS">--</span>S</div>
+        <div>ONDA P: <span id="popupP">--</span>S</div>
+      </div>
+      <div id="popupFooter"><span id="popupDate">--</span> - SASNO</div>
+    </div>
+  </div>
+
+  <audio id="eqwAudio"
+    src="https://carletes2010.github.io/monitorsismicov2/assets/alertaudio.mp3"
+    preload="auto" playsinline></audio>
+
+  <audio id="advAudio"
+    src="https://carletes2010.github.io/monitorsismicov2/assets/advisory.mp3"
+    preload="auto" playsinline></audio>
+
+  <!-- ✅ FIREBASE LOGIN (solo entrar + reset) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signInWithEmailAndPassword,
+      sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4nqBYRE79R_rWlpE5cqClBtA_-zx4-5I",
+      authDomain: "sasno-d79e1.firebaseapp.com",
+      projectId: "sasno-d79e1",
+      storageBucket: "sasno-d79e1.firebasestorage.app",
+      messagingSenderId: "273171190720",
+      appId: "1:273171190720:web:1033095169ef1e665c2e25",
+      measurementId: "G-SW1GPY4D0G"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    try { getAnalytics(app); } catch(_) {}
+
+    const auth = getAuth(app);
+
+    const loginOverlay = document.getElementById("loginOverlay");
+    const loginEmail = document.getElementById("loginEmail");
+    const loginPass = document.getElementById("loginPass");
+    const loginBtn = document.getElementById("loginBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const loginMsg = document.getElementById("loginMsg");
+
+    const setMsg = (txt, ok=false) => {
+      loginMsg.textContent = String(txt || "");
+      loginMsg.className = ok ? "good" : "bad";
+    };
+
+    loginBtn.addEventListener("click", async () => {
+      const email = (loginEmail.value || "").trim();
+      const pass = (loginPass.value || "");
+      if(!email || !pass){ setMsg("Pon tu correo y contraseña."); return; }
+
+      loginBtn.disabled = true;
+      loginBtn.style.opacity = ".75";
+      try{
+        await signInWithEmailAndPassword(auth, email, pass);
+        setMsg("Entrando…", true);
+      }catch(e){
+        setMsg(e?.message || "No se pudo iniciar sesión.");
+      }finally{
+        loginBtn.disabled = false;
+        loginBtn.style.opacity = "1";
+      }
+    });
+
+    resetBtn.addEventListener("click", async () => {
+      const email = (loginEmail.value || "").trim();
+      if(!email){ setMsg("Escribe tu correo para enviarte el link de restauración."); return; }
+      resetBtn.disabled = true;
+      resetBtn.style.opacity = ".75";
+      try{
+        await sendPasswordResetEmail(auth, email);
+        setMsg("Listo: revisa tu correo (y spam) para restaurar tu contraseña.", true);
+      }catch(e){
+        setMsg(e?.message || "No se pudo enviar el correo de restauración.");
+      }finally{
+        resetBtn.disabled = false;
+        resetBtn.style.opacity = "1";
+      }
+    });
+
+    // ✅ Arrancar el monitor SOLO si hay sesión
+    onAuthStateChanged(auth, (user) => {
+      if(user){
+        loginOverlay.style.display = "none";
+        loginOverlay.setAttribute("aria-hidden","true");
+        // arrancar app (definida en app.js)
+        window.__BOOT_MONITOR__?.();
+      }else{
+        loginOverlay.style.display = "flex";
+        loginOverlay.setAttribute("aria-hidden","false");
+      }
+    });
+  </script>
+
+  <!-- App principal -->
+  <script src="./app.js"></script>
+</body>
+</html>
