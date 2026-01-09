@@ -1,0 +1,179 @@
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:Poppins,Arial,Helvetica,sans-serif;background:#000;color:#fff}
+#map{position:fixed;inset:0}
+
+/* ===== Estilo Cristal (UI) ===== */
+:root{
+--glass-bg: rgba(255,255,255,.1);
+--glass-br: rgba(255,255,255,.2);
+}
+.btn, .sim, #hud, #sema, #log, #simMenu, #overlay .panel, #configPanel, #errPanel, #popupCard, #symb{
+background:var(--glass-bg);
+border:1px solid var(--glass-br);
+backdrop-filter:blur(10px);
+padding:24px 28px;
+border-radius:18px;
+text-align:center;
+}
+
+/* Barra izquierda */
+#leftRail{position:fixed;top:16px;left:16px;z-index:10;display:flex;flex-direction:column;gap:12px;max-width:420px}
+#ctrl{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+#alertWrap{position:relative;display:flex;gap:10px;align-items:flex-start}
+
+/* Botones */
+.btn{color:#fff;cursor:pointer;display:flex;gap:8px;align-items:center;justify-content:center;font-weight:700;white-space:nowrap}
+.btn:hover{filter:brightness(1.12)}
+#alertBtn svg{width:20px;height:20px}
+
+/* Menús */
+#simMenu{position:absolute;top:64px;left:0;min-width:240px;display:none;flex-direction:column;gap:10px;z-index:20}
+.sim{color:#fff;cursor:pointer;font-weight:700;width:100%}
+.sim:hover{filter:brightness(1.12)}
+
+#configPanel{
+position:absolute; top:64px; left:0;
+min-width:340px; max-width:420px;
+display:none; flex-direction:column; gap:14px;
+z-index:21; text-align:left;
+}
+.cfgTitle{font-weight:900;letter-spacing:.2px}
+.cfgRow{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.cfgRow label{font-weight:800}
+.cfgRow small{opacity:.85;font-weight:600}
+.cfgRow input[type="checkbox"]{transform:scale(1.2)}
+.cfgDivider{height:1px;background:rgba(255,255,255,.18);margin:4px 0}
+.cfgBtnRow{display:flex;gap:10px;justify-content:flex-end}
+.cfgBtnRow .btn{padding:10px 14px}
+.cfgBlock{display:flex;flex-direction:column;gap:8px}
+.cfgBlock select,.cfgBlock input[type="file"]{
+width:100%; padding:10px 12px; border-radius:12px;
+border:1px solid rgba(255,255,255,.22); background:rgba(0,0,0,.25); color:#fff; outline:none;
+}
+
+/* Bitácora */
+#log{max-height:44vh;overflow:auto;color:#fff;text-align:left}
+#log h3{margin:0 0 8px;font-size:16px}
+.entry{display:grid;grid-template-columns:auto 1fr;gap:8px;padding:10px;border-radius:14px;background:rgba(255,255,255,.06);margin-bottom:8px}
+.dot{width:14px;height:14px;border-radius:50%;margin-top:3px}
+.meta{font-size:12px;line-height:1.25}
+
+/* HUD y Semáforo */
+#hud{position:fixed;left:14px;bottom:60px;z-index:9;width:300px;text-align:left}
+
+/* ===== Stack derecho: Simbología + Semáforo ===== */
+#rightStack{
+position:fixed;
+right:14px;
+bottom:60px;
+z-index:9;
+width:360px;
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+#sema{position:relative;width:360px}
+#hud h1{margin:0 0 8px;font-size:22px}
+#foco{width:40px;height:40px;margin:0 auto 10px;border-radius:50%;background:#999;box-shadow:0 0 14px rgba(0,0,0,.5) inset}
+.barWrap{position:relative; padding-bottom:26px}
+.bar{display:flex;height:28px;border-radius:10px;overflow:hidden;font-size:11px;font-weight:900}
+.bar div{flex:1;display:flex;align-items:center;justify-content:center}
+.leve{background:#00c853} .mod{background:#ffc400} .fue{background:#ff3b4a} .viol{background:#7a001f} .ext{background:#6a00ff}
+#flecha{
+position:absolute; left:0; bottom:0; transform:translateX(-50%);
+font-size:18px; text-shadow:0 1px 3px #000; transition:left .18s ease;
+}
+
+/* Logo */
+#logoPop{position:fixed;top:50px;right:60px;z-index:9;width:280px;height:auto;user-select:none}
+
+/* Overlay */
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000}
+
+/* Error */
+#errPanel{position:fixed;left:16px;right:16px;top:16px;z-index:2000;display:none;text-align:left;padding:16px 18px}
+#errPanel code{white-space:pre-wrap}
+
+/* Popup */
+#popupOverlay{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:1500; background:rgba(0,0,0,.35)}
+#popupCard{width:min(720px, 92vw);border-radius:26px;padding:26px 30px;position:relative}
+#popupClose{
+position:absolute; left:18px; top:14px; width:42px; height:42px;
+border-radius:14px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.22);
+color:#fff; font-weight:900; font-size:20px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+#popupIcon{width:110px;height:110px;margin:2px auto 8px}
+#popupTitle{font-size:52px;line-height:1.05;margin:6px 0;font-weight:900}
+#popupSub{font-size:34px;line-height:1.15;margin:0 0 16px;font-weight:900}
+#popupMid{font-size:26px;margin:10px 0;font-weight:900}
+#popupTimes{font-size:28px;font-weight:900}
+#popupFooter{margin-top:18px;font-size:34px;font-weight:900}
+@media (max-width:560px){
+#popupTitle{font-size:38px} #popupSub{font-size:24px} #popupIcon{width:84px;height:84px}
+}
+
+/* =========================================================
+TRÉBOL (BLANCO) + CÓMO AJUSTAR TAMAÑO / DURACIÓN
+========================================================= */
+:root{
+--trebol-duration: 1.9s;
+--trebol-scale-peak: 1.35;
+--trebol-size: 75px;
+}
+@keyframes trebolSpin {
+0% { transform: rotate(0deg) scale(1); }
+50% { transform: rotate(180deg) scale(var(--trebol-scale-peak)); }
+100% { transform: rotate(360deg) scale(1); }
+}
+.trebol-marker-wrap{width:0;height:0;display:flex;align-items:center;justify-content:center;z-index:500;}
+.trebol-img{width:var(--trebol-size);height:var(--trebol-size);display:none;pointer-events:none;filter: brightness(0);}
+.trebol-img.active{display:block;animation: trebolSpin var(--trebol-duration) linear infinite;}
+
+/* =========================
+   SIMBOLOGÍA (leyenda animada)
+   ========================= */
+#symb{padding:16px 16px;text-align:left}
+#symb h3{margin:0 0 10px;font-size:16px;text-align:left}
+.symbList{display:flex;flex-direction:column;gap:10px}
+.symbItem{display:flex;gap:12px;align-items:center}
+.symbLabel{font-weight:800;font-size:13px;line-height:1.15;opacity:.95}
+
+/* mini previews */
+.symbIcon{
+width:52px;height:52px;
+border-radius:16px;
+background:rgba(0,0,0,.22);
+border:1px solid rgba(255,255,255,.18);
+display:flex;align-items:center;justify-content:center;
+position:relative;
+overflow:hidden;
+}
+
+/* mini ondas P y S (juntas) */
+@keyframes ringGrowP {
+0%{transform:translate(-50%,-50%) scale(.15); opacity:1}
+100%{transform:translate(-50%,-50%) scale(1.35); opacity:0}
+}
+@keyframes ringGrowS {
+0%{transform:translate(-50%,-50%) scale(.12); opacity:1}
+100%{transform:translate(-50%,-50%) scale(1.15); opacity:0}
+}
+.ring{
+position:absolute; left:50%; top:50%;
+width:42px;height:42px;border-radius:50%;
+border:2px solid transparent;
+transform:translate(-50%,-50%) scale(.2);
+opacity:.9;
+}
+.ring.p{border-color:#ffc400;animation:ringGrowP 1.35s linear infinite;}
+.ring.s{border-color:#ff3b4a;animation:ringGrowS 1.55s linear infinite;animation-delay:.2s;}
+
+/* mini central */
+.centralMini{width:18px;height:18px;border-radius:50%;background:#004AAD;border:4px solid #7ED957;}
+
+/* mini alerta sísmica (trébol girando, chiquito) */
+.miniTrebol{width:22px;height:22px;filter: brightness(0);animation: trebolSpin var(--trebol-duration) linear infinite;}
+
+/* pausar animaciones cuando se oculta simbología */
+.symbPaused .ring,
+.symbPaused .miniTrebol{animation-play-state:paused !important;}
