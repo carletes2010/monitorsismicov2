@@ -126,7 +126,7 @@ TRÉBOL (BLANCO) + CÓMO AJUSTAR TAMAÑO / DURACIÓN
 100% { transform: rotate(360deg) scale(1); }
 }
 .trebol-marker-wrap{width:0;height:0;display:flex;align-items:center;justify-content:center;z-index:500;}
-.trebol-img{width:var(--trebol-size);height:var(--trebol-size);display:none;pointer-events:none;filter: brightness(0);}
+.trebol-img{width:var(--trebol-size);height:var(--trebol-size);display:none;pointer-events:none;}
 .trebol-img.active{display:block;animation: trebolSpin var(--trebol-duration) linear infinite;}
 
 /* =========================
@@ -172,7 +172,7 @@ opacity:.9;
 .centralMini{width:18px;height:18px;border-radius:50%;background:#004AAD;border:4px solid #7ED957;}
 
 /* mini alerta sísmica (trébol girando, chiquito) */
-.miniTrebol{width:22px;height:22px;filter: brightness(0);animation: trebolSpin var(--trebol-duration) linear infinite;}
+.miniTrebol{width:22px;height:22px;animation: trebolSpin var(--trebol-duration) linear infinite;}
 
 /* pausar animaciones cuando se oculta simbología */
 .symbPaused .ring,
